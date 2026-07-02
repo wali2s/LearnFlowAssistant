@@ -27,18 +27,20 @@ struct GoalsView: View {
                         Text("No Goals yet")
                             .foregroundStyle(.secondary)
                     }else{
-                        List(viewModel.goals){ goal in
-                            VStack(alignment: .leading, spacing: 4){
-                                Text(goal.title)
-                                    .font(.headline)
-                                Text(goal.subject)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
+                        List{
+                            ForEach(viewModel.goals){ goal in
+                                VStack(alignment: .leading, spacing: 5){
+                                    Text(goal.title)
+                                        .font(.headline)
+                                    Text(goal.subject)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }.onDelete(perform: viewModel.deleteGoal)
                         }
                     }
                 }
-            }
+            }.navigationTitle("Golas")
         }
     }
 }

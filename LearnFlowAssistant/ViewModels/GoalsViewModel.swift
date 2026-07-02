@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import SwiftUI
 
 final class GoalsViewModel: ObservableObject {
     @Published var goals: [LearningGoal] = []
@@ -35,4 +36,8 @@ final class GoalsViewModel: ObservableObject {
         title = ""
         subject = ""
     }
+    
+    func deleteGoal(at offsets: IndexSet) {
+            goals.remove(atOffsets: offsets)
+        }
 }
