@@ -8,37 +8,43 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedTab: AppTab = .home
+
     var body: some View {
-        TabView{
-            NavigationStack{
-                HomeView()
-            }
-            .tabItem{
-                Label("Home", systemImage: "house")
-            }
-            
-            NavigationStack{
-                GoalsView()
-            }
-            .tabItem {
-                Label("Goals", systemImage: "target")
-            }
-            NavigationStack{
-                SessionView()
-            }
-            .tabItem {
-                Label("Session",systemImage: "timer")
-            }
-            NavigationStack{
-                StartsView()
-            }
-            .tabItem {
-                Label("Start", systemImage: "chart.bar")
-            }
+        TabView(selection: $selectedTab) {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+                .tag(AppTab.home)
+
+            GoalsView(selectedTab: $selectedTab)
+                .tabItem {
+                    Label("Goals", systemImage: "target")
+                }
+                .tag(AppTab.goals)
+
+            SessionView()
+                .tabItem {
+                    Label("Session", systemImage: "timer")
+                }
+                .tag(AppTab.session)
+
+            StatsView()
+                .tabItem {
+                    Label("Stats", systemImage: "chart.bar")
+                }
+                .tag(AppTab.stats)
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(AppViewModel())
 }
+
+
+
+
+
