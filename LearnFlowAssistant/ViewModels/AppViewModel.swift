@@ -9,14 +9,20 @@ final class AppViewModel: ObservableObject {
     @Published var canSave: Bool = false
 
     private var cancellables = Set<AnyCancellable>()
+    private let storage = GoalStorageService()
 
     init() {
+        goals = storage.load()
         Publishers.CombineLatest($title, $subject)
             .map { title, subject in
                 !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
                 !subject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             }
             .assign(to: &$canSave)
+        $goals.sink{ [weak self] goals in
+            self?.storage.save(goals)
+        }
+        .store(in: &cancellables)
     }
 
     func addGoal() {

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-struct LearningGoal: Identifiable{
+struct LearningGoal: Identifiable, Codable{
     let id: UUID
     var title: String
     var subject: String
