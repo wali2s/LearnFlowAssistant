@@ -17,6 +17,7 @@ final class AppViewModel: ObservableObject {
 
     init() {
         goals = storage.load()
+        sessions = storage.loadSessions()
         Publishers.CombineLatest($title, $subject)
             .map { title, subject in
                 !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -27,6 +28,10 @@ final class AppViewModel: ObservableObject {
             self?.storage.save(goals)
         }
         .store(in: &cancellables)
+        
+        $sessions.sink { [weak self] sessions in
+            self?.storage.saveSession(sessions)
+        }.store(in: &cancellables)
     }
 
     func addGoal() {
