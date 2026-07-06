@@ -28,7 +28,7 @@ struct SessionView: View {
                 }
                 Section("Session"){
                     if let start = viewModel.activeSessionStart{
-                        Text("Active goal: \(viewModel.currendGoalTitle)")
+                        Text("Active goal: \(viewModel.currentdGoalTitle)")
                         Text("Started at: \(start.formatted(date: .omitted, time: .shortened))")
                         Button("Stop Session"){
                             viewModel.stopSession()
@@ -55,6 +55,9 @@ struct SessionView: View {
                                 Text(session.goalTitle)
                                     .font(.headline)
                                 Text("Duration: \(session.duarationInSeconds) sec")
+                                    .foregroundStyle(.secondary)
+                                Text(session.startedAt.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }

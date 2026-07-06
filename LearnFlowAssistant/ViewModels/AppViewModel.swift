@@ -10,7 +10,7 @@ final class AppViewModel: ObservableObject {
     @Published var sessions: [StudySession] = []
     @Published var selectedGoalId: UUID?
     @Published var activeSessionStart: Date?
-    @Published var currendGoalTitle: String = ""
+    @Published var currentdGoalTitle: String = ""
 
     private var cancellables = Set<AnyCancellable>()
     private let storage = GoalStorageService()
@@ -56,7 +56,7 @@ final class AppViewModel: ObservableObject {
               let goal = goals.first(where: { $0.id == selectedGoalId }) else { return }
         if activeSessionStart == nil {
             activeSessionStart = Date()
-            currendGoalTitle = goal.title
+            currentdGoalTitle = goal.title
         }
     }
     
@@ -71,7 +71,7 @@ final class AppViewModel: ObservableObject {
         let session = StudySession( id: UUID(), goalId: goal.id, goalTitle: goal.title, startedAt: start, endedAt: end, duarationInSeconds: duration)
         sessions.insert(session, at: 0)
         activeSessionStart = nil
-        currendGoalTitle = ""
+        currentdGoalTitle = ""
     }
     
     func updateGoal(id: UUID, title: String, subject: String){
