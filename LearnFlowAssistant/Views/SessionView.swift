@@ -8,11 +8,65 @@
 import SwiftUI
 
 struct SessionView: View {
+    @EnvironmentObject var viewModel: AppViewModel
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack{
+            Form{
+                Section("Choose Goal"){
+                    if viewModel.goals.isEmpty {
+                        Text("Please add a goal first")
+                            .foregroundStyle(.secondary)
+                    }else{
+                        Picker("Learning Goal", selection:$viewModel.selectedGoalId){
+                            Text("Select a goal")
+                                .tag(UUID?.none)
+                            ForEach(viewModel.goals){ goal in
+                                Text(goal.title).tag(Optional(goal.id))
+                            }
+                        }
+                    }
+                }
+                Section("Session"){
+                    if let start = viewModel.activeSessionStart{
+                        Text("Active goal: \(viewModel.currendGoalTitle)")
+                        Text("Started at: \(start.formatted(date: .omitted, time: .shortened))")
+                        Button("Stop Session"){
+                            viewModel.stopSession()
+                        }
+                        .foregroundStyle(.red)
+                        
+                    }else{
+                        Text("No active session")
+                        Button("Start Session"){
+                            viewModel.startSession()
+                        }
+                        .disabled(viewModel.selectedGoalId == nil || viewModel.goals.isEmpty)
+                    }
+                }
+                
+                Section("Recent Session"){
+                    if viewModel.sessions.isEmpty {
+                        Text("No sessions yet")
+                            .foregroundStyle(.secondary)
+                        
+                    }else{
+                        ForEach(viewModel.sessions.prefix(5)){ session in
+                            VStack(alignment: .leading, spacing: 4){
+                                Text(session.goalTitle)
+                                    .font(.headline)
+                                Text("Duration: \(session.duarationInSeconds) sec")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Session")
+        }
     }
 }
 
 #Preview {
     SessionView()
+        .environmentObject(AppViewModel())
 }

@@ -25,6 +25,12 @@ struct StatsView: View {
                     Text("More statistics will come soon.")
                         .foregroundStyle(.secondary)
                 }
+                
+                Text("Total sessions: \(viewModel.sessions.count)")
+                    .font(.headline)
+    
+                Text("Duration is: \(viewModel.sessions.reduce(0) { $0 + $1.duarationInSeconds})")
+                    .font(.headline)
 
                 Spacer()
             }

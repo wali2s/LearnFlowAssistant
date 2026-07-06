@@ -17,7 +17,11 @@ struct HomeView: View {
 
                 Text("You have \(viewModel.goals.count) learning goals.")
                     .font(.headline)
-
+                
+                Text("You have completed \(viewModel.sessions.count)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
                 if viewModel.goals.isEmpty {
                     Text("Start by adding your first goal in the Goals tab.")
                         .foregroundStyle(.secondary)
