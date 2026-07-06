@@ -11,11 +11,13 @@ struct LearningGoal: Identifiable, Codable{
     var title: String
     var subject: String
     var createdAt: Date
+    var isCompleted: Bool
     
-    init(id: UUID = UUID(), title: String, subject: String, createdAt: Date = Date()){
+    init(id: UUID = UUID(), title: String, subject: String, createdAt: Date = Date(), isCompleted: Bool = false){
         self.id = id
         self.title = title
         self.subject = subject
         self.createdAt = createdAt
+        self.isCompleted = isCompleted
     }
 }

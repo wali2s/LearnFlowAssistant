@@ -85,3 +85,34 @@ final class AppViewModel: ObservableObject {
         goals[index].subject = trimmedSubject
     }
 }
+
+
+
+extension AppViewModel{
+    
+    var totalGoalCount: Int {
+        goals.count
+    }
+    
+    var activeGoalCount: Int {
+        goals.filter { !$0.isCompleted }.count
+    }
+    var totalSessionCount: Int {
+        sessions.count
+    }
+    
+    var TotalStudyMinutes: Int {
+        let StudyInSecond = sessions.reduce (0){
+            $0 + $1.duarationInSeconds
+        }
+        return StudyInSecond / 60
+    }
+    
+    var completedGoalsCount: Int {
+        goals.filter { $0.isCompleted }.count
+    }
+    
+    var recentGoals: [LearningGoal]{
+        Array(goals.prefix(3))
+    }
+}
