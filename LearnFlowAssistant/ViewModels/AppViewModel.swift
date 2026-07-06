@@ -68,4 +68,15 @@ final class AppViewModel: ObservableObject {
         activeSessionStart = nil
         currendGoalTitle = ""
     }
+    
+    func updateGoal(id: UUID, title: String, subject: String){
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedSubject = subject.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty else { return }
+        
+        guard let index = goals.firstIndex(where: { $0.id == id }) else { return }
+        goals[index].title = trimmedTitle
+        goals[index].subject = trimmedSubject
+    }
 }

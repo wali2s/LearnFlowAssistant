@@ -31,13 +31,15 @@ struct GoalsView: View {
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.goals) { goal in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(goal.title)
-                                    .font(.headline)
-
-                                Text(goal.subject)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                            NavigationLink(destination: GoalDetailView(goal: goal)){
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(goal.title)
+                                        .font(.headline)
+                                    
+                                    Text(goal.subject)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                         .onDelete(perform: viewModel.deleteGoal)
