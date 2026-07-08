@@ -54,9 +54,9 @@ struct SessionView: View {
                             VStack(alignment: .leading, spacing: 4){
                                 Text(session.goalTitle)
                                     .font(.headline)
-                                Text("Duration: \(session.duarationInSeconds) sec")
+                                Text("Duration: \(session.durationText) sec")
                                     .foregroundStyle(.secondary)
-                                Text(session.startedAt.formatted(date: .abbreviated, time: .shortened))
+                                Text(session.formattedStartDate)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }

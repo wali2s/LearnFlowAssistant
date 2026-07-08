@@ -22,4 +22,18 @@ struct StudySession: Identifiable, Codable {
         self.endedAt = endedAt
         self.duarationInSeconds = duarationInSeconds
     }
+    var durationText: String{
+        let minutes = duarationInSeconds / 60
+        let seconds = duarationInSeconds % 60
+        
+        if minutes > 0 {
+            return "\(minutes) min \(seconds) sec"
+        }else{
+            return "\(seconds) sec"
+        }
+    }
+    
+    var formattedStartDate: String{
+        startedAt.formatted(date: .abbreviated, time: .shortened)
+    }
 }
