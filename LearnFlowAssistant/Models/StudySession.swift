@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 struct StudySession: Identifiable, Codable {
     let id: UUID
     let goalId: UUID
@@ -13,8 +14,15 @@ struct StudySession: Identifiable, Codable {
     let startedAt: Date
     let endedAt: Date
     let durationInSeconds: Int
-    
-    init(id: UUID, goalId: UUID, goalTitle: String, startedAt: Date, endedAt: Date, durationInSeconds: Int) {
+
+    init(
+        id: UUID,
+        goalId: UUID,
+        goalTitle: String,
+        startedAt: Date,
+        endedAt: Date,
+        durationInSeconds: Int
+    ) {
         self.id = id
         self.goalId = goalId
         self.goalTitle = goalTitle
@@ -22,20 +30,19 @@ struct StudySession: Identifiable, Codable {
         self.endedAt = endedAt
         self.durationInSeconds = durationInSeconds
     }
-    
-    
-    var durationText: String{
+
+    var durationText: String {
         let minutes = durationInSeconds / 60
         let seconds = durationInSeconds % 60
-        
+
         if minutes > 0 {
             return "\(minutes) min \(seconds) sec"
-        }else{
+        } else {
             return "\(seconds) sec"
         }
     }
-    
-    var formattedStartDate: String{
+
+    var formattedStartDate: String {
         startedAt.formatted(date: .abbreviated, time: .shortened)
     }
 }

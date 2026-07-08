@@ -7,10 +7,11 @@ final class AppViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var subject: String = ""
     @Published var canSave: Bool = false
+
     @Published var sessions: [StudySession] = []
     @Published var selectedGoalId: UUID?
     @Published var activeSessionStart: Date?
-    @Published var currentdGoalTitle: String = ""
+    @Published var currentGoalTitle: String = ""
 
     private var cancellables = Set<AnyCancellable>()
     private let storage = GoalStorageService()
@@ -18,20 +19,25 @@ final class AppViewModel: ObservableObject {
     init() {
         goals = storage.load()
         sessions = storage.loadSessions()
+
         Publishers.CombineLatest($title, $subject)
             .map { title, subject in
                 !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
                 !subject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             }
             .assign(to: &$canSave)
-        $goals.sink{ [weak self] goals in
-            self?.storage.save(goals)
-        }
-        .store(in: &cancellables)
-        
-        $sessions.sink { [weak self] sessions in
-            self?.storage.saveSession(sessions)
-        }.store(in: &cancellables)
+
+        $goals
+            .sink { [weak self] goals in
+                self?.storage.save(goals)
+            }
+            .store(in: &cancellables)
+
+        $sessions
+            .sink { [weak self] sessions in
+                self?.storage.saveSession(sessions)
+            }
+            .store(in: &cancellables)
     }
 
     func addGoal() {
@@ -50,86 +56,95 @@ final class AppViewModel: ObservableObject {
     func deleteGoal(at offsets: IndexSet) {
         goals.remove(atOffsets: offsets)
     }
-    
-    func startSession(){
-        guard let selectedGoalId,
-              let goal = goals.first(where: { $0.id == selectedGoalId }) else { return }
-        if activeSessionStart == nil {
-            activeSessionStart = Date()
-            currentdGoalTitle = goal.title
-        }
-    }
-    
-    func stopSession(){
-        guard let selectedGoalId,
-              let goal = goals.first(where: { $0.id == selectedGoalId }),
-              let start = activeSessionStart else { return }
-        
-        let end = Date()
-        let duration = Int(end.timeIntervalSince(start))
-        
-        let session = StudySession( id: UUID(), goalId: goal.id, goalTitle: goal.title, startedAt: start, endedAt: end, durationInSeconds: duration)
-        sessions.insert(session, at: 0)
-        activeSessionStart = nil
-        currentdGoalTitle = ""
-    }
-    
-    func updateGoal(id: UUID, title: String, subject: String){
+
+    func updateGoal(id: UUID, title: String, subject: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedSubject = subject.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty else { return }
-        
         guard let index = goals.firstIndex(where: { $0.id == id }) else { return }
+
         goals[index].title = trimmedTitle
         goals[index].subject = trimmedSubject
     }
+
+    func toggleGoalCompletion(id: UUID) {
+        guard let index = goals.firstIndex(where: { $0.id == id }) else { return }
+        goals[index].isCompleted.toggle()
+    }
+
+    func startSession() {
+        guard activeSessionStart == nil else { return }
+        guard let selectedGoalId,
+              let goal = goals.first(where: { $0.id == selectedGoalId }) else { return }
+
+        activeSessionStart = Date()
+        currentGoalTitle = goal.title
+    }
+
+    func stopSession() {
+        guard let selectedGoalId,
+              let goal = goals.first(where: { $0.id == selectedGoalId }),
+              let start = activeSessionStart else { return }
+
+        let end = Date()
+        let duration = Int(end.timeIntervalSince(start))
+
+        let session = StudySession(
+            id: UUID(),
+            goalId: goal.id,
+            goalTitle: goal.title,
+            startedAt: start,
+            endedAt: end,
+            durationInSeconds: duration
+        )
+
+        sessions.insert(session, at: 0)
+        activeSessionStart = nil
+        currentGoalTitle = ""
+    }
 }
 
-
-
-extension AppViewModel{
-    
+extension AppViewModel {
     var totalGoalCount: Int {
         goals.count
     }
-    
+
     var activeGoalCount: Int {
         goals.filter { !$0.isCompleted }.count
     }
-    var totalSessionCount: Int {
-        sessions.count
-    }
-    var totalStudySeconds: Int {
-        sessions.reduce (0){$0 + $1.durationInSeconds}
-    }
-    
-    var totalStudyTimeText: String{
-        let hour = totalStudySeconds / 3600
-        let minutes = (totalStudySeconds % 3600) / 60
-        let seconds = totalStudySeconds % 60
 
-        
-        if hour > 0 {
-            return "\(hour)h \(minutes)m \(seconds)s"
-        }else if minutes > 0{
-            return "\(minutes)m \(seconds)s"
-        }else {
-            return "\(seconds)s"
-        }
-    }
-    
     var completedGoalsCount: Int {
         goals.filter { $0.isCompleted }.count
     }
-    
-    var recentGoals: [LearningGoal]{
+
+    var totalSessionCount: Int {
+        sessions.count
+    }
+
+    var totalStudySeconds: Int {
+        sessions.reduce(0) { $0 + $1.durationInSeconds }
+    }
+
+    var totalStudyTimeText: String {
+        let hours = totalStudySeconds / 3600
+        let minutes = (totalStudySeconds % 3600) / 60
+        let seconds = totalStudySeconds % 60
+
+        if hours > 0 {
+            return "\(hours) h \(minutes) min \(seconds) sec"
+        } else if minutes > 0 {
+            return "\(minutes) min \(seconds) sec"
+        } else {
+            return "\(seconds) sec"
+        }
+    }
+
+    var recentGoals: [LearningGoal] {
         Array(goals.prefix(3))
     }
-    
+
     var recentSessions: [StudySession] {
         Array(sessions.prefix(5))
     }
-    
-    
 }
