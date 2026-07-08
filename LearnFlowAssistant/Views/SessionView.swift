@@ -50,11 +50,12 @@ struct SessionView: View {
                             .foregroundStyle(.secondary)
                         
                     }else{
-                        ForEach(viewModel.sessions.prefix(5)){ session in
-                            VStack(alignment: .leading, spacing: 4){
+                        ForEach(viewModel.recentSessions){ session in
+                            VStack(alignment: .leading, spacing: 6){
                                 Text(session.goalTitle)
                                     .font(.headline)
                                 Text("Duration: \(session.durationText) sec")
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                 Text(session.formattedStartDate)
                                     .font(.caption)

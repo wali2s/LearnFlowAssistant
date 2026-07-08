@@ -106,7 +106,7 @@ extension AppViewModel{
     
     var totalStudyTimeText: String{
         let hour = totalStudySeconds / 3600
-        let minutes = totalStudySeconds / 60
+        let minutes = (totalStudySeconds % 3600) / 60
         let seconds = totalStudySeconds % 60
 
         
@@ -127,6 +127,9 @@ extension AppViewModel{
         Array(goals.prefix(3))
     }
     
+    var recentSessions: [StudySession] {
+        Array(sessions.prefix(5))
+    }
     
     
 }
