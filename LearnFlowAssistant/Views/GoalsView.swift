@@ -10,16 +10,25 @@ import SwiftUI
 struct GoalsView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @Binding var selectedTab: AppTab
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case title
+        case subject
+    }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("New Goal") {
                     TextField("Goal title", text: $viewModel.title)
+                        .focused($focusedField, equals: .title)
                     TextField("Subject", text: $viewModel.subject)
+                        .focused($focusedField, equals: .subject)
 
                     Button("Add Goal") {
                         viewModel.addGoal()
+                        focusedField = nil
                         selectedTab = .home
                     }
                     .disabled(!viewModel.canSave)

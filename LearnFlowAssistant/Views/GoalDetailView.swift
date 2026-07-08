@@ -23,6 +23,11 @@ struct GoalDetailView: View {
     private var currentGoal: LearningGoal?{
         viewModel.goals.first(where: {$0.id == goalId})
     }
+    
+    private var canSave: Bool{
+        !editedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !editedSubject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
     var body: some View {
         Form{
             Section("Edit Goal"){
@@ -32,8 +37,7 @@ struct GoalDetailView: View {
                     viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject)
                 }
                 .disabled(
-                    editedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-                    editedSubject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    !canSave
                 )
             }
             if let goal = currentGoal{
@@ -49,6 +53,6 @@ struct GoalDetailView: View {
 }
 
 #Preview {
-    GoalDetailView(goal: LearningGoal(title: "SwiftUIBasics", subject: "iOS"))
+    GoalDetailView(goal: LearningGoal(title: "", subject: ""))
         .environmentObject(AppViewModel())
 }

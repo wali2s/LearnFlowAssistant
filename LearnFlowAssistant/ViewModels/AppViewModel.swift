@@ -105,16 +105,15 @@ extension AppViewModel{
     }
     
     var totalStudyTimeText: String{
+        let hour = totalStudySeconds / 3600
         let minutes = totalStudySeconds / 60
         let seconds = totalStudySeconds % 60
-        
-        let hour = minutes / 60
-        let minute = minutes % 60
+
         
         if hour > 0 {
-            return "\(hour)h \(minute)m \(seconds)s"
+            return "\(hour)h \(minutes)m \(seconds)s"
         }else if minutes > 0{
-            return "\(minute)m \(seconds)s"
+            return "\(minutes)m \(seconds)s"
         }else {
             return "\(seconds)s"
         }
