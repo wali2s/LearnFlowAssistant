@@ -12,21 +12,21 @@ struct StudySession: Identifiable, Codable {
     let goalTitle: String
     let startedAt: Date
     let endedAt: Date
-    let duarationInSeconds: Int
+    let durationInSeconds: Int
     
-    init(id: UUID, goalId: UUID, goalTitle: String, startedAt: Date, endedAt: Date, duarationInSeconds: Int) {
+    init(id: UUID, goalId: UUID, goalTitle: String, startedAt: Date, endedAt: Date, durationInSeconds: Int) {
         self.id = id
         self.goalId = goalId
         self.goalTitle = goalTitle
         self.startedAt = startedAt
         self.endedAt = endedAt
-        self.duarationInSeconds = duarationInSeconds
+        self.durationInSeconds = durationInSeconds
     }
     
     
     var durationText: String{
-        let minutes = duarationInSeconds / 60
-        let seconds = duarationInSeconds % 60
+        let minutes = durationInSeconds / 60
+        let seconds = durationInSeconds % 60
         
         if minutes > 0 {
             return "\(minutes) min \(seconds) sec"

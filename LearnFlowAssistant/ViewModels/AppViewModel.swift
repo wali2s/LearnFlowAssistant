@@ -68,7 +68,7 @@ final class AppViewModel: ObservableObject {
         let end = Date()
         let duration = Int(end.timeIntervalSince(start))
         
-        let session = StudySession( id: UUID(), goalId: goal.id, goalTitle: goal.title, startedAt: start, endedAt: end, duarationInSeconds: duration)
+        let session = StudySession( id: UUID(), goalId: goal.id, goalTitle: goal.title, startedAt: start, endedAt: end, durationInSeconds: duration)
         sessions.insert(session, at: 0)
         activeSessionStart = nil
         currentdGoalTitle = ""
@@ -101,7 +101,7 @@ extension AppViewModel{
         sessions.count
     }
     var totalStudySeconds: Int {
-        sessions.reduce (0){$0 + $1.duarationInSeconds}
+        sessions.reduce (0){$0 + $1.durationInSeconds}
     }
     
     var totalStudyTimeText: String{
