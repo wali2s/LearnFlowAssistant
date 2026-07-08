@@ -22,6 +22,8 @@ struct StudySession: Identifiable, Codable {
         self.endedAt = endedAt
         self.duarationInSeconds = duarationInSeconds
     }
+    
+    
     var durationText: String{
         let minutes = duarationInSeconds / 60
         let seconds = duarationInSeconds % 60

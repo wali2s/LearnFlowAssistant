@@ -43,7 +43,7 @@ struct HomeView: View {
             }
             
             HStack{
-                SummaryCard(title: "Minutes", value: "\(viewModel.TotalStudyMinutes)", color: .orange)
+                SummaryCard(title: "Minutes", value: "\(viewModel.totalStudyTimeText)", color: .orange)
                 SummaryCard(title: "Active", value: "\(viewModel.activeGoalCount)", color:.purple)
             }
             

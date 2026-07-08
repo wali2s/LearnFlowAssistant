@@ -100,12 +100,24 @@ extension AppViewModel{
     var totalSessionCount: Int {
         sessions.count
     }
+    var totalStudySeconds: Int {
+        sessions.reduce (0){$0 + $1.duarationInSeconds}
+    }
     
-    var TotalStudyMinutes: Int {
-        let StudyInSecond = sessions.reduce (0){
-            $0 + $1.duarationInSeconds
+    var totalStudyTimeText: String{
+        let minutes = totalStudySeconds / 60
+        let seconds = totalStudySeconds % 60
+        
+        let hour = minutes / 60
+        let minute = minutes % 60
+        
+        if hour > 0 {
+            return "\(hour)h \(minute)m \(seconds)s"
+        }else if minutes > 0{
+            return "\(minute)m \(seconds)s"
+        }else {
+            return "\(seconds)s"
         }
-        return StudyInSecond / 60
     }
     
     var completedGoalsCount: Int {
@@ -115,4 +127,7 @@ extension AppViewModel{
     var recentGoals: [LearningGoal]{
         Array(goals.prefix(3))
     }
+    
+    
+    
 }

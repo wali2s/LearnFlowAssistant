@@ -15,28 +15,43 @@ struct StatsView: View {
                 Text("Statistics")
                     .font(.title.bold())
 
-                Text("Total goals: \(viewModel.goals.count)")
+                Text("Total goals: \(viewModel.totalGoalCount)")
                     .font(.headline)
 
                 if viewModel.goals.isEmpty {
                     Text("No statistics yet. Add your first goal.")
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("More statistics will come soon.")
-                        .foregroundStyle(.secondary)
+                    VStack(alignment:.leading,spacing: 12){
+                        StateRow(title: "Total goals", value: "\(viewModel.totalGoalCount)")
+                        StateRow(title: "Total sessions", value: "\(viewModel.totalSessionCount)")
+                        StateRow(title: "Total study time", value: "\(viewModel.totalStudyTimeText)")
+                        
+                    }
                 }
-                
-                Text("Total sessions: \(viewModel.sessions.count)")
-                    .font(.headline)
-    
-                Text("Duration is: \(viewModel.sessions.reduce(0) { $0 + $1.duarationInSeconds})")
-                    .font(.headline)
-
                 Spacer()
             }
             .padding()
             .navigationTitle("Stats")
         }
+    }
+}
+
+struct StateRow: View {
+    let title: String
+    let value: String
+    
+    
+    var body: some View{
+        HStack{
+            Text(title)
+            Spacer()
+            Text(value)
+                .fontWeight(.semibold)
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
     }
 }
 
