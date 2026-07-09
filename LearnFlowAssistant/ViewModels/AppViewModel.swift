@@ -147,4 +147,17 @@ extension AppViewModel {
     var recentSessions: [StudySession] {
         Array(sessions.prefix(5))
     }
+    
+    var goalState: [GoalState] {
+        goals.map { goal in
+            let matchingSessions = sessions.filter{
+                $0.goalId == goal.id
+            }
+            let totalSeconds = matchingSessions.reduce (0) {
+                $0 + $1.durationInSeconds
+            }
+            
+            return GoalState(goalTitle: goal.title, sessionCount: matchingSessions.count, totalSeconds: totalSeconds)
+        }
+    }
 }
