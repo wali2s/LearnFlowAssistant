@@ -26,6 +26,8 @@ struct StatsView: View {
                         StateRow(title: "Total goals", value: "\(viewModel.totalGoalCount)")
                         StateRow(title: "Total sessions", value: "\(viewModel.totalSessionCount)")
                         StateRow(title: "Total study time", value: "\(viewModel.totalStudyTimeText)")
+                        StateRow(title: "Active goal", value: "\(viewModel.activeGoalCount)")
+                        StateRow(title:"Completed goals", value: "\(viewModel.completedGoalsCount)")
                         
                     }
                 }

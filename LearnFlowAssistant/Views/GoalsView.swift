@@ -43,12 +43,22 @@ struct GoalsView: View {
                             NavigationLink(destination: GoalDetailView(goal: goal)){
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(goal.title)
-                                        .font(.headline)
+                                        .strikethrough(goal.isCompleted)
+                                        .foregroundStyle(goal.isCompleted ? .secondary: .primary)
                                     
                                     Text(goal.subject)
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
+                                Spacer()
+                                Button{
+                                    viewModel.toggleGoalCompletion(id: goal.id)
+                                } label: {
+                                    Image(systemName: goal.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(goal.isCompleted ? .green : .gray)
+                                        .font(.title3)
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                         .onDelete(perform: viewModel.deleteGoal)
