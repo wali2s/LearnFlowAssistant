@@ -35,11 +35,19 @@ struct GoalsView: View {
                 }
 
                 Section("My Goals") {
-                    if viewModel.goals.isEmpty {
-                        Text("No goals yet")
-                            .foregroundStyle(.secondary)
+                    
+                        Picker("Filter", selection: $viewModel.selectedGoalFilter){
+                            ForEach(GoalFilter.allCases){ filter in
+                                Text(filter.rawValue).tag(filter)
+                            }
+                        }
+                    if viewModel.filteredGoals.isEmpty {
+                        ContentUnavailableView("No goals found",
+                        systemImage: "line.3.horizontal.decrease.circle",
+                         description: Text("try a different filter or add a new goal")
+                        )
                     } else {
-                        ForEach(viewModel.goals) { goal in
+                        ForEach(viewModel.filteredGoals) { goal in
                             NavigationLink(destination: GoalDetailView(goal: goal)){
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(goal.title)

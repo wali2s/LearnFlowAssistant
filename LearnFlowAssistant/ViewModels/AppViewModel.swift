@@ -2,6 +2,14 @@ import Foundation
 import Combine
 import SwiftUI
 
+enum GoalFilter: String, CaseIterable, Identifiable {
+    case all = "All"
+    case active = "Active"
+    case completed = "Completed"
+    
+    var id: String { rawValue }
+}
+
 final class AppViewModel: ObservableObject {
     @Published var goals: [LearningGoal] = []
     @Published var title: String = ""
@@ -12,6 +20,8 @@ final class AppViewModel: ObservableObject {
     @Published var selectedGoalId: UUID?
     @Published var activeSessionStart: Date?
     @Published var currentGoalTitle: String = ""
+    
+    @Published var selectedGoalFilter: GoalFilter = .all
 
     private var cancellables = Set<AnyCancellable>()
     private let storage = GoalStorageService()
@@ -158,6 +168,17 @@ extension AppViewModel {
             }
             
             return GoalState(goalTitle: goal.title, sessionCount: matchingSessions.count, totalSeconds: totalSeconds)
+        }
+    }
+    
+    var filteredGoals: [LearningGoal] {
+        switch selectedGoalFilter {
+        case .all:
+            return goals
+        case .active:
+            return goals.filter { !$0.isCompleted }
+        case .completed:
+            return goals.filter { $0.isCompleted }
         }
     }
 }
