@@ -11,17 +11,18 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 20) {
-                headerSection
-                summarySection
-                recentGoalsSection
-                quickActionsSection
+            ScrollView{
+                VStack(alignment: .leading, spacing: 20) {
+                    headerSection
+                    summarySection
+                    recentGoalsSection
+                    quickActionsSection
+                }
+                .padding()
+                .navigationTitle("Home")
             }
-            .padding()
-            .navigationTitle("Home")
         }
     }
-    
     private var headerSection: some View{
         VStack(alignment: .leading, spacing: 8){
             Text("Welcome back")

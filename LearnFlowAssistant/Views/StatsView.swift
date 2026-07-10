@@ -8,77 +8,78 @@ import SwiftUI
 import Charts
 struct StatsView: View {
     @EnvironmentObject var viewModel: AppViewModel
-
+    
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Statistics")
-                    .font(.title.bold())
-                
-                Text("Total goals: \(viewModel.totalGoalCount)")
-                    .font(.headline)
-                
-                if viewModel.goals.isEmpty {
-                    Text("No statistics yet. Add your first goal.")
-                        .foregroundStyle(.secondary)
-                } else {
-                    VStack(alignment:.leading,spacing: 12){
-                        StateRow(title: "Total goals", value: "\(viewModel.totalGoalCount)")
-                        StateRow(title: "Total sessions", value: "\(viewModel.totalSessionCount)")
-                        StateRow(title: "Total study time", value: "\(viewModel.totalStudyTimeText)")
-                        StateRow(title: "Active goal", value: "\(viewModel.activeGoalCount)")
-                        StateRow(title:"Completed goals", value: "\(viewModel.completedGoalsCount)")
-                        
-                    }
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Per goal")
-                        .font(.headline)
-                        
-                    if viewModel.goalState.allSatisfy({$0.totalSeconds == 0}){
+            ScrollView{
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Stattistics")
+                        .font(.title.bold())
+                    if viewModel.goals.isEmpty {
                         ContentUnavailableView(
-                            "no study date yet",
+                            "No statistics yet",
                             systemImage: "chart.bar",
-                            description: Text("Complete a study session to see your chart")
-                        
+                            description: Text("Add your first goal to start tracking progress")
                         )
-                        
+                    }else {
+                        summarySection
+                        chartSection
                     }
+                   
+                        
+                       
+                        
+                    }.padding()
                     
-                    Chart(viewModel.goalState) { stat in
+                }
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Stats")
+        }
+    }
+    
+private extension StatsView {
+    var summarySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SummaryCard(title: "Total Goals", value:"\(viewModel.totalGoalCount)", color: .blue)
+            SummaryCard(title: "Actie Goals", value: "\(viewModel.activeGoalCount)", color: .orange)
+            SummaryCard(title: "Completed Goals", value: "\(viewModel.completedGoalsCount)", color: .green)
+            SummaryCard(title: "Total Sessions", value: "\(viewModel.totalSessionCount)", color: .purple)
+            SummaryCard(title: "Study Time", value: "\(viewModel.totalStudyTimeText)", color: .pink)
+        }
+    }
+    
+    var chartSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Study time per Goal")
+                .font(.headline)
+            
+            if viewModel.goalState.allSatisfy({$0.totalSeconds == 0}){
+                ContentUnavailableView(
+                    "No study time data",
+                    systemImage: "chart.bar",
+                    description: Text("Add your first goal to start tracking progress")
+                )
+            } else {
+                Chart(viewModel.goalState){ stat in
                         BarMark(
                             x: .value("Goal", stat.goalTitle),
                             y: .value("Seconds", stat.totalSeconds)
                         )
-                        .foregroundStyle(.green)
-                    }
-                    .frame(height: 200)
-                    
-                }.padding(.top, 12)
-                
+                        .foregroundStyle(.green.gradient)
+                        .cornerRadius(7)
+                }
+                .frame(height: 180)
+                .chartYAxis {
+                    AxisMarks(position: .leading)
+                }
             }
-            Spacer()
-        }
-        .padding()
-        .navigationTitle("Stats")
-    }
-}
-
-struct StateRow: View {
-    let title: String
-    let value: String
-    
-    
-    var body: some View{
-        HStack{
-            Text(title)
-            Spacer()
-            Text(value)
-                .fontWeight(.semibold)
+            
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .cornerRadius(17)
     }
 }
 

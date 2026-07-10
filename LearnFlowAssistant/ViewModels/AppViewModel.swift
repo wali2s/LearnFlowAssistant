@@ -45,7 +45,7 @@ final class AppViewModel: ObservableObject {
 
         $sessions
             .sink { [weak self] sessions in
-                self?.storage.saveSession(sessions)
+                self?.storage.saveSessions(sessions)
             }
             .store(in: &cancellables)
     }

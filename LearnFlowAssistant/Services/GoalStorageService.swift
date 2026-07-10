@@ -33,7 +33,7 @@ final class GoalStorageService{
         }
     }
     
-    func saveSession(_ sessions:[StudySession]){
+    func saveSessions(_ sessions:[StudySession]){
         do{
             let data = try JSONEncoder().encode(sessions)
             UserDefaults.standard.set(data, forKey: sessionKey)
