@@ -5,7 +5,7 @@
 //  Created by Wahid on 03.07.26.
 //
 import SwiftUI
-
+import Charts
 struct StatsView: View {
     @EnvironmentObject var viewModel: AppViewModel
 
@@ -34,23 +34,28 @@ struct StatsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Per goal")
                         .font(.headline)
-                        .padding(.top, 8)
-                    
-                    ForEach(viewModel.goalState) { state in
-                        VStack(alignment:.leading ,spacing: 4){
-                            Text(state.goalTitle)
-                                .font(.headline)
-                            Text("Sessions: \(state.sessionCount)")
-                                .foregroundStyle(.secondary)
-                            Text("Study time: \(state.totalSeconds)")
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
+                        
+                    if viewModel.goalState.allSatisfy({$0.totalSeconds == 0}){
+                        ContentUnavailableView(
+                            "no study date yet",
+                            systemImage: "chart.bar",
+                            description: Text("Complete a study session to see your chart")
+                        
+                        )
+                        
                     }
-                }
+                    
+                    Chart(viewModel.goalState) { stat in
+                        BarMark(
+                            x: .value("Goal", stat.goalTitle),
+                            y: .value("Seconds", stat.totalSeconds)
+                        )
+                        .foregroundStyle(.green)
+                    }
+                    .frame(height: 200)
+                    
+                }.padding(.top, 12)
+                
             }
             Spacer()
         }
