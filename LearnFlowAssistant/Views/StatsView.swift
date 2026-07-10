@@ -63,12 +63,19 @@ private extension StatsView {
                 )
             } else {
                 Chart(viewModel.goalState){ stat in
-                        BarMark(
+                    let minutes = Double (stat.totalSeconds) / 60
+                    
+                    BarMark(
                             x: .value("Goal", stat.goalTitle),
-                            y: .value("Seconds", stat.totalSeconds)
+                            y: .value("Minutes", minutes)
                         )
-                        .foregroundStyle(.green.gradient)
+                    .foregroundStyle(color(totalSeconds: stat.totalSeconds))
                         .cornerRadius(7)
+                        .annotation(position: .top) {
+                            Text("\(minutes, specifier: "%.0f") min")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                 }
                 .frame(height: 180)
                 .chartYAxis {
@@ -80,6 +87,20 @@ private extension StatsView {
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(17)
+    }
+    
+    func color(totalSeconds: Int) -> Color {
+        
+        switch totalSeconds {
+        case 0..<30:
+            return .red
+        case 30..<60:
+            return .orange
+        case 60..<120:
+            return .yellow
+        default:
+            return .green
+        }
     }
 }
 

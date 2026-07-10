@@ -181,4 +181,10 @@ extension AppViewModel {
             return goals.filter { $0.isCompleted }
         }
     }
+    
+    var sortedGoalStats: [GoalState] {
+        goalState
+            .filter { $0.totalSeconds > 0}
+            .sorted { $0.totalSeconds > $1.totalSeconds}
+    }
 }
