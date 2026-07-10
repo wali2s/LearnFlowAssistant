@@ -62,7 +62,7 @@ private extension StatsView {
                     description: Text("Add your first goal to start tracking progress")
                 )
             } else {
-                Chart(viewModel.goalState){ stat in
+                Chart(viewModel.sortedGoalStats){ stat in
                     let minutes = Double (stat.totalSeconds) / 60
                     
                     BarMark(
