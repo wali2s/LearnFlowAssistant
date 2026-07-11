@@ -10,6 +10,15 @@ enum GoalFilter: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+enum GoalSortOption: String, CaseIterable, Identifiable {
+    case titleAscending = "Title: A-Z"
+    case titleDescending = "Title: Z-A"
+    case activeFirst = "Active First"
+    case completedFirst = "Completed First"
+    
+    var id: String { rawValue }
+}
+
 final class AppViewModel: ObservableObject {
     @Published var goals: [LearningGoal] = []
     @Published var title: String = ""
@@ -22,6 +31,7 @@ final class AppViewModel: ObservableObject {
     @Published var currentGoalTitle: String = ""
     
     @Published var selectedGoalFilter: GoalFilter = .all
+    @Published var SelectedGoalSort: GoalSortOption = .titleAscending
     
     @Published var goalSearchText: String = ""
 
@@ -192,13 +202,44 @@ extension AppViewModel {
         }
 
         let trimmedSearchText = goalSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard !trimmedSearchText.isEmpty else {
-            return statusFilteredGoals
+        var searchedGoals: [LearningGoal]
+        if trimmedSearchText.isEmpty {
+            searchedGoals = statusFilteredGoals
+        }else {
+            searchedGoals = statusFilteredGoals
+                .filter{ goal in
+                    goal.title.localizedStandardContains(trimmedSearchText) ||
+                    goal.subject.localizedStandardContains(trimmedSearchText)
+                }
         }
+       
+        switch SelectedGoalSort {
+            
+        case .titleAscending:
+            return searchedGoals.sorted{
+                $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
+            }
+        case .titleDescending:
+            return searchedGoals.sorted{
+                $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedDescending
+            }
+        case .activeFirst:
+            return searchedGoals.sorted { lhs, rhs in
+                if lhs.isCompleted == rhs.isCompleted {
+                    return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+                }
+                return !lhs.isCompleted && rhs.isCompleted
+            }
 
-        return statusFilteredGoals.filter { goal in
-            goal.title.localizedCaseInsensitiveContains(trimmedSearchText) ||
-            goal.subject.localizedCaseInsensitiveContains(trimmedSearchText)
+        case .completedFirst:
+            return searchedGoals.sorted { lhs, rhs in
+                if lhs.isCompleted == rhs.isCompleted {
+                    return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+                }
+                return lhs.isCompleted && !rhs.isCompleted
+            }
         }
-    }}
+        
+    }
+    
+}

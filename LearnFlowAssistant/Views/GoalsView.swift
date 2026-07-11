@@ -91,6 +91,24 @@ struct GoalsView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search goals or subjects"
             )
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing){
+                    Menu {
+                        Picker(
+                            "Sort Goal",
+                            selection: $viewModel.SelectedGoalSort
+                        ) {
+                            ForEach (GoalSortOption.allCases) { option in
+                                Text(option.rawValue).tag(option)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down.circle")
+                    }
+                    
+                }
+                
+            }
         }
     }
 }
