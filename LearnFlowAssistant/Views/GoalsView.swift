@@ -20,6 +20,7 @@ struct GoalsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                
                 Section("New Goal") {
                     TextField("Goal title", text: $viewModel.title)
                         .focused($focusedField, equals: .title)
@@ -42,10 +43,19 @@ struct GoalsView: View {
                             }
                         }
                     if viewModel.filteredGoals.isEmpty {
-                        ContentUnavailableView("No goals found",
-                        systemImage: "line.3.horizontal.decrease.circle",
-                         description: Text("try a different filter or add a new goal")
-                        )
+                        if viewModel.goals.isEmpty {
+                            ContentUnavailableView("No goals found",
+                            systemImage: "line.3.horizontal.decrease.circle",
+                             description: Text("try a different filter or add a new goal")
+                            )
+                        }else {
+                            ContentUnavailableView(
+                                "No matching Goals",
+                                systemImage: "magnifyingglass",
+                                description: Text("Try a different search or filter")
+                            )
+                        }
+                        
                     } else {
                         ForEach(viewModel.filteredGoals) { goal in
                             NavigationLink(destination: GoalDetailView(goal: goal)){
@@ -61,12 +71,14 @@ struct GoalsView: View {
                                 Spacer()
                                 Button{
                                     viewModel.toggleGoalCompletion(id: goal.id)
-                                } label: {
+                                }
+                                label: {
                                     Image(systemName: goal.isCompleted ? "checkmark.circle.fill" : "circle")
                                         .foregroundStyle(goal.isCompleted ? .green : .gray)
                                         .font(.title3)
                                 }
                                 .buttonStyle(.plain)
+                                
                             }
                         }
                         .onDelete(perform: viewModel.deleteGoal)
@@ -74,6 +86,11 @@ struct GoalsView: View {
                 }
             }
             .navigationTitle("Goals")
+            .searchable(
+                text: $viewModel.goalSearchText,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search goals or subjects"
+            )
         }
     }
 }

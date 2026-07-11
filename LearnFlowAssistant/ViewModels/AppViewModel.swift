@@ -22,6 +22,8 @@ final class AppViewModel: ObservableObject {
     @Published var currentGoalTitle: String = ""
     
     @Published var selectedGoalFilter: GoalFilter = .all
+    
+    @Published var goalSearchText: String = ""
 
     private var cancellables = Set<AnyCancellable>()
     private let storage = GoalStorageService()
@@ -171,20 +173,32 @@ extension AppViewModel {
         }
     }
     
-    var filteredGoals: [LearningGoal] {
-        switch selectedGoalFilter {
-        case .all:
-            return goals
-        case .active:
-            return goals.filter { !$0.isCompleted }
-        case .completed:
-            return goals.filter { $0.isCompleted }
-        }
-    }
-    
     var sortedGoalStats: [GoalState] {
         goalState
             .filter { $0.totalSeconds > 0}
             .sorted { $0.totalSeconds > $1.totalSeconds}
     }
-}
+    
+    var filteredGoals: [LearningGoal] {
+        let statusFilteredGoals: [LearningGoal]
+
+        switch selectedGoalFilter {
+        case .all:
+            statusFilteredGoals = goals
+        case .active:
+            statusFilteredGoals = goals.filter { !$0.isCompleted }
+        case .completed:
+            statusFilteredGoals = goals.filter { $0.isCompleted }
+        }
+
+        let trimmedSearchText = goalSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmedSearchText.isEmpty else {
+            return statusFilteredGoals
+        }
+
+        return statusFilteredGoals.filter { goal in
+            goal.title.localizedCaseInsensitiveContains(trimmedSearchText) ||
+            goal.subject.localizedCaseInsensitiveContains(trimmedSearchText)
+        }
+    }}

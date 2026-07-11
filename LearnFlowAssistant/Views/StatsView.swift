@@ -66,24 +66,35 @@ private extension StatsView {
                     let minutes = Double (stat.totalSeconds) / 60
                     
                     BarMark(
-                            x: .value("Goal", stat.goalTitle),
-                            y: .value("Minutes", minutes)
-                        )
+                        x: .value("Goal", stat.goalTitle),
+                        y: .value("Minutes", minutes)
+                    )
                     .foregroundStyle(color(totalSeconds: stat.totalSeconds))
-                        .cornerRadius(7)
-                        .annotation(position: .top) {
-                            Text("\(minutes, specifier: "%.0f") min")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
+                    .cornerRadius(7)
+                    .annotation(position: .top) {
+                        Text("\(minutes, specifier: "%.0f") min")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    RuleMark(y: .value("Average", viewModel.averageStudyMinutesPerGoal))
+                        .foregroundStyle(.blue)
+                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [3]))
+                        .annotation(position: .top, alignment: .trailing)
+                    {
+                            Text("Average: \(viewModel.averageStudyMinutesPerGoal, specifier: "%.0f") min")
+                                .font(.caption)
+                                .foregroundStyle(.blue)
                         }
                 }
+               
+                    
+            
                 .frame(height: 180)
                 .chartYAxis {
                     AxisMarks(position: .leading)
                 }
             }
-            
-        }
+          }
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(17)
@@ -107,4 +118,18 @@ private extension StatsView {
 #Preview {
     StatsView()
         .environmentObject(AppViewModel())
+}
+
+extension AppViewModel {
+    var averageStudyMinutesPerGoal: Double {
+        let statsWithStudyTime = goalState.filter { $0.totalSeconds > 0}
+        
+        guard !statsWithStudyTime.isEmpty else { return 0}
+        
+        let totalMinutes = statsWithStudyTime
+            .map { Double( $0.totalSeconds) / 60.0 }
+            .reduce(0, +)
+        
+        return totalMinutes / Double(statsWithStudyTime.count)
+    }
 }
