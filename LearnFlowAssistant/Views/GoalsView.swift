@@ -16,7 +16,7 @@ struct GoalsView: View {
         case title
         case subject
     }
-
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -26,7 +26,7 @@ struct GoalsView: View {
                         .focused($focusedField, equals: .title)
                     TextField("Subject", text: $viewModel.subject)
                         .focused($focusedField, equals: .subject)
-
+                    
                     Button("Add Goal") {
                         viewModel.addGoal()
                         focusedField = nil
@@ -34,19 +34,19 @@ struct GoalsView: View {
                     }
                     .disabled(!viewModel.canSave)
                 }
-
+                
                 Section("My Goals") {
                     
-                        Picker("Filter", selection: $viewModel.selectedGoalFilter){
-                            ForEach(GoalFilter.allCases){ filter in
-                                Text(filter.rawValue).tag(filter)
-                            }
+                    Picker("Filter", selection: $viewModel.selectedGoalFilter){
+                        ForEach(GoalFilter.allCases){ filter in
+                            Text(filter.rawValue).tag(filter)
                         }
+                    }
                     if viewModel.filteredGoals.isEmpty {
                         if viewModel.goals.isEmpty {
                             ContentUnavailableView("No goals found",
-                            systemImage: "line.3.horizontal.decrease.circle",
-                             description: Text("try a different filter or add a new goal")
+                                                   systemImage: "line.3.horizontal.decrease.circle",
+                                                   description: Text("try a different filter or add a new goal")
                             )
                         }else {
                             ContentUnavailableView(
@@ -105,9 +105,7 @@ struct GoalsView: View {
                     } label: {
                         Image(systemName: "arrow.up.arrow.down.circle")
                     }
-                    
                 }
-                
             }
         }
     }

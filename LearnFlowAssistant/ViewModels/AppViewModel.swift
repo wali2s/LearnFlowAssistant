@@ -191,7 +191,7 @@ extension AppViewModel {
     
     var filteredGoals: [LearningGoal] {
         let statusFilteredGoals: [LearningGoal]
-
+        
         switch selectedGoalFilter {
         case .all:
             statusFilteredGoals = goals
@@ -200,7 +200,7 @@ extension AppViewModel {
         case .completed:
             statusFilteredGoals = goals.filter { $0.isCompleted }
         }
-
+        
         let trimmedSearchText = goalSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
         var searchedGoals: [LearningGoal]
         if trimmedSearchText.isEmpty {
@@ -212,7 +212,7 @@ extension AppViewModel {
                     goal.subject.localizedStandardContains(trimmedSearchText)
                 }
         }
-       
+        
         switch SelectedGoalSort {
             
         case .titleAscending:
@@ -239,7 +239,5 @@ extension AppViewModel {
                 return lhs.isCompleted && !rhs.isCompleted
             }
         }
-        
     }
-    
 }
