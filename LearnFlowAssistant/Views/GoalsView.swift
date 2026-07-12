@@ -58,33 +58,7 @@ struct GoalsView: View {
                         
                     } else {
                         ForEach(viewModel.filteredGoals) { goal in
-                            NavigationLink(destination: GoalDetailView(goal: goal)){
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(goal.title)
-                                        .strikethrough(goal.isCompleted)
-                                        .foregroundStyle(goal.isCompleted ? .secondary: .primary)
-                                    
-                                    Text(goal.subject)
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false){
-                                Button(role: .destructive){
-                                    goalToDelete = goal
-                                    showDeleteConfirmation = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                                Button {
-                                    viewModel.toggleGoalCompletion(id: goal.id)
-                                } label: {
-                                    Label(
-                                        goal.isCompleted ? "Mark Active": "Complete",
-                                        systemImage: goal.isCompleted ? "arrow.uturn.backward.circle": "checkmark.circle"
-                                    )
-                                }
-                                .tint(goal.isCompleted ? .orange : .green)
+                            goalRow(for: goal)
                             }
                         }
                     }
@@ -129,6 +103,47 @@ struct GoalsView: View {
             } message: { goal in
                 Text("Are you sure you want to delete \"\(goal.title)\"?")
             }
+        }
+        @ViewBuilder
+        private func goalRow(for goal: LearningGoal) -> some View {
+            NavigationLink(destination: GoalDetailView(goal: goal)){
+                HStack(alignment: .top, spacing: 12){
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(goal.title)
+                            .strikethrough(goal.isCompleted)
+                            .foregroundStyle(goal.isCompleted ? .secondary: .primary)
+                        
+                        Text(goal.subject)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Text(goal.isCompleted ? "Done": "Active")
+                        .font(.caption.weight((.semibold)))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(goal.isCompleted ? Color.green.opacity(0.25): .orange.opacity(0.25))
+                        .foregroundStyle(goal.isCompleted ? .green: .blue)
+                        .clipShape(Capsule())
+                }
+                .padding(.vertical, 4)
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: false){
+                Button(role: .destructive){
+                    goalToDelete = goal
+                    showDeleteConfirmation = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                Button {
+                    viewModel.toggleGoalCompletion(id: goal.id)
+                } label: {
+                    Label(
+                        goal.isCompleted ? "Mark Active": "Complete",
+                        systemImage: goal.isCompleted ? "arrow.uturn.backward.circle": "checkmark.circle"
+                    )
+                }
+                .tint(goal.isCompleted ? .orange : .green)
         }
     }
 }
