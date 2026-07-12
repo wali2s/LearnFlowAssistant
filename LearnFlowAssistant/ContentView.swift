@@ -12,13 +12,12 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomeView()
-                .tabItem {
+            HomeView(selectedTab: $selectedTab)                .tabItem {
                     Label("Home", systemImage: "house")
                 }
                 .tag(AppTab.home)
-
-            GoalsView(selectedTab: $selectedTab)
+            
+            GoalsView()
                 .tabItem {
                     Label("Goals", systemImage: "target")
                 }

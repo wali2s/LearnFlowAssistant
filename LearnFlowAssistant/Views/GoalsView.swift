@@ -9,9 +9,10 @@ import SwiftUI
 
 struct GoalsView: View {
     @EnvironmentObject var viewModel: AppViewModel
-    @Binding var selectedTab: AppTab
     @FocusState private var focusedField: Field?
-    
+    @State private var goalToDelete: LearningGoal?
+    @State private var showDeleteConfirmation: Bool = false
+   
     enum Field {
         case title
         case subject
@@ -30,7 +31,6 @@ struct GoalsView: View {
                     Button("Add Goal") {
                         viewModel.addGoal()
                         focusedField = nil
-                        selectedTab = .home
                     }
                     .disabled(!viewModel.canSave)
                 }
@@ -68,20 +68,25 @@ struct GoalsView: View {
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
-                                Spacer()
-                                Button{
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false){
+                                Button(role: .destructive){
+                                    goalToDelete = goal
+                                    showDeleteConfirmation = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                Button {
                                     viewModel.toggleGoalCompletion(id: goal.id)
+                                } label: {
+                                    Label(
+                                        goal.isCompleted ? "Mark Active": "Complete",
+                                        systemImage: goal.isCompleted ? "arrow.uturn.backward.circle": "checkmark.circle"
+                                    )
                                 }
-                                label: {
-                                    Image(systemName: goal.isCompleted ? "checkmark.circle.fill" : "circle")
-                                        .foregroundStyle(goal.isCompleted ? .green : .gray)
-                                        .font(.title3)
-                                }
-                                .buttonStyle(.plain)
-                                
+                                .tint(goal.isCompleted ? .orange : .green)
                             }
                         }
-                        .onDelete(perform: viewModel.deleteGoal)
                     }
                 }
             }
@@ -107,11 +112,28 @@ struct GoalsView: View {
                     }
                 }
             }
+            .confirmationDialog(
+                "Delete Goal",
+                isPresented: $showDeleteConfirmation ,
+                titleVisibility: .visible,
+                presenting: goalToDelete
+            ) { goal in
+                Button("Delete \(goal.title)", role: .destructive) {
+                    viewModel.deleteGoal(id: goal.id)
+                    goalToDelete = nil
+                }
+
+                Button("Cancel", role: .cancel) {
+                    goalToDelete = nil
+                }
+            } message: { goal in
+                Text("Are you sure you want to delete \"\(goal.title)\"?")
+            }
         }
     }
 }
 
 #Preview {
-    GoalsView(selectedTab: .constant(.goals))
+    GoalsView()
         .environmentObject(AppViewModel())
 }

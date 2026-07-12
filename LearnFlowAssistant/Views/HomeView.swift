@@ -8,6 +8,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var viewModel: AppViewModel
+    @Binding var selectedTab: AppTab
 
     var body: some View {
         NavigationStack {
@@ -66,12 +67,15 @@ struct HomeView: View {
                         VStack(alignment: .leading, spacing: 6){
                             Text(goal.title)
                                 .font(.headline)
+                                .foregroundStyle(.blue.opacity(0.8))
+                               
                             Text(goal.subject)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
                         .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity,
+                               alignment: .leading)
                         .background(Color(.systemGray6))
                         .presentationCornerRadius(12)
                     }
@@ -82,23 +86,76 @@ struct HomeView: View {
     
     private var quickActionsSection: some View{
         VStack(alignment: .leading, spacing: 12){
-            Text("start fast")
+            Text("Quick Actions")
                 .font(.headline)
             
-            NavigationLink(destination: SessionView()){
-                Label("start a new Session", systemImage: "play.circle.fill")
+            Button {
+                selectedTab = .goals
+            }label: {
+                Label("Add or edit goals", systemImage: "target")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-            }.buttonStyle(.plain)
+                    .background(Color.blue.opacity(0.7))
+                    .foregroundStyle(.white)
+                    .cornerRadius(15)
+                
+            }
+            .padding(.horizontal)
+
+            
+            
+            Button {
+                selectedTab = .session
+            }label: {
+                Label (!isSessionRunning ?"Start a new session" : "Resume current session", systemImage: isSessionRunning ? "pause.circle.fill" :"play.circle.fill")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(.white)
+                    .background(isSessionRunning ? Color.orange.opacity(0.7) : Color.green.opacity(0.7))
+                    .cornerRadius(15)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal)
+            .disabled(!canStartSession)
+            
+            if isSessionRunning {
+                Text("A learning goal is currently in progress.")
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+            } else if !canStartSession {
+                Text("You have no goals to work on.")
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+            }
+            Button {
+                selectedTab = .stats
+            } label: {
+                Label("Open statistics", systemImage: "chart.bar.fill")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(.white)
+                    .background(Color.blue.opacity(0.7))
+                    .cornerRadius(15)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal)
+
+            
+                
+            }
         }
+    
+    var isSessionRunning: Bool {
+        viewModel.activeSessionStart != nil
     }
-}
+    
+    var canStartSession: Bool {
+        !viewModel.goals.isEmpty
+    }
+    }
+
 
 #Preview {
-    HomeView()
-        .environmentObject(AppViewModel())
+    HomeView(selectedTab: .constant(.home))
+           .environmentObject(AppViewModel())
 }

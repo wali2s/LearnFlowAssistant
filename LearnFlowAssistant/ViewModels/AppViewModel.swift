@@ -75,8 +75,8 @@ final class AppViewModel: ObservableObject {
         subject = ""
     }
 
-    func deleteGoal(at offsets: IndexSet) {
-        goals.remove(atOffsets: offsets)
+    func deleteGoal(id: UUID) {
+        goals.removeAll { $0.id == id }
     }
 
     func updateGoal(id: UUID, title: String, subject: String) {
