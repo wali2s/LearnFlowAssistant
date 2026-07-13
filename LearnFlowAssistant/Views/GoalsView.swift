@@ -71,11 +71,11 @@ struct GoalsView: View {
                 prompt: "Search goals or subjects"
             )
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing){
+                ToolbarItem(placement: .bottomBar){
                     Menu {
                         Picker(
                             "Sort Goal",
-                            selection: $viewModel.SelectedGoalSort
+                            selection: $viewModel.selectedGoalSort
                         ) {
                             ForEach (GoalSortOption.allCases) { option in
                                 Text(option.rawValue).tag(option)

@@ -31,7 +31,7 @@ final class AppViewModel: ObservableObject {
     @Published var currentGoalTitle: String = ""
     
     @Published var selectedGoalFilter: GoalFilter = .all
-    @Published var SelectedGoalSort: GoalSortOption = .titleAscending
+    @Published var selectedGoalSort: GoalSortOption = .titleAscending
     
     @Published var goalSearchText: String = ""
 
@@ -213,7 +213,7 @@ extension AppViewModel {
                 }
         }
         
-        switch SelectedGoalSort {
+        switch selectedGoalSort {
             
         case .titleAscending:
             return searchedGoals.sorted{
