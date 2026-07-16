@@ -83,22 +83,7 @@ extension SessionView {
     private var currentSessionSection: some View {
         Section("Current Session"){
             if let startDate = viewModel.activeSessionStart {
-                VStack(spacing: 12){
-                    Image(systemName: "timer")
-                        .font(.system(size:28))
-                        .foregroundStyle(.blue)
-                    Text("Session in Progress")
-                        .font(.headline)
-                    TimelineView(.periodic(from: .now, by: 1)){ context in
-                        let elapsedSeconds = Int(context.date.timeIntervalSince(startDate))
-                        Text(viewModel.formattedDuration(elapsedSeconds))
-                            .font(.system(size:34,weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                    }
-                    Text("Goal: \(viewModel.currentGoalTitle)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                SessionTimerCard(startDate: startDate, goalTitle: viewModel.currentGoalTitle, formattedDuration: viewModel.formattedDuration)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 Button("Stop Session", role: .destructive){
