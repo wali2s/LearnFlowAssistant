@@ -24,6 +24,7 @@ struct SessionView: View {
                 currentSessionSection
                 recentSessionsSection
             }
+            .formStyle(.grouped)
             .navigationTitle("Session")
             .confirmationDialog(
                 "Stop Session",
@@ -84,8 +85,8 @@ extension SessionView {
         Section("Current Session"){
             if let startDate = viewModel.activeSessionStart {
                 SessionTimerCard(startDate: startDate, goalTitle: viewModel.currentGoalTitle, formattedDuration: viewModel.formattedDuration)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
                 Button("Stop Session", role: .destructive){
                     showStopConfirmation = true
                 }
@@ -113,25 +114,21 @@ extension SessionView {
                     systemImage: "clock",
                     description: Text("Your finished learning session will appear here.")
                 )
+                .listRowSeparator(.hidden)
                 
             }else{
-                ForEach(viewModel.recentSessions){ session in
-                    VStack(alignment: .leading, spacing: 6){
-                        Text(session.goalTitle)
-                            .font(.headline)
-                        Text("Duration: \(session.durationText) sec")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text(session.formattedStartDate)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.vertical, 4)
+                ForEach(viewModel.recentSessions) { session in
+                    RecentSessionRow(session: session)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
             }
         }
+        .listSectionSeparator(.hidden)
     }
 }
+
 
 #Preview {
     SessionView()

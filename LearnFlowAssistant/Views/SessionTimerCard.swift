@@ -14,31 +14,53 @@ struct SessionTimerCard: View {
     let formattedDuration: (Int) -> String
     
     var body: some View {
-        VStack(spacing: 12){
-            Image(systemName: "Timer")
-                .font(.system(size: 28))
-                .foregroundStyle(.blue)
+        VStack(alignment: .leading, spacing: 12){
+            HStack{
+                Text("Active Session")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.blue.opacity(0.12))
+                    .clipShape(Capsule())
+                Spacer()
+                
+                Image(systemName: "timer")
+                    .foregroundStyle(.blue)
+            }
             
-            Text("Session in Progress")
-                           .font(.headline)
-
-                       TimelineView(.periodic(from: .now, by: 1)) { context in
-                           let elapsedSeconds = Int(context.date.timeIntervalSince(startDate))
-
-                           Text(formattedDuration(elapsedSeconds))
-                               .font(.system(size: 34, weight: .bold, design: .rounded))
-                               .monospacedDigit()
-                       }
-
-                       Text("Goal: \(goalTitle)")
-                           .font(.subheadline)
-                           .foregroundStyle(.secondary)
-                   }
-                   .frame(maxWidth: .infinity)
-                   .cardStyle()
+            VStack(alignment: .leading, spacing: 6){
+                Text("Session in Progress")
+                    .font(.headline)
+                
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    let elapsedSeconds = Int(context.date.timeIntervalSince(startDate))
+                    
+                    Text(formattedDuration(elapsedSeconds))
+                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                }
+            }
+            Divider()
+            
+            VStack(spacing: 10){
+                LabeledContent("Goal"){
+                    Text(goalTitle)
+                        .foregroundStyle(.secondary)
+                }
+                LabeledContent("Started"){
+                    Text(startDate.formatted(date: .abbreviated, time: .shortened))
+                        .foregroundStyle(.secondary)
+                }
+                
+            }
+            .font(.subheadline)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardStyle()
+        
     }
-    
+}
 
 
 #Preview {
