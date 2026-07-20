@@ -143,6 +143,10 @@ final class AppViewModel: ObservableObject {
         activeSessionStart = nil
         currentGoalTitle = ""
     }
+    
+    func deleteSession(_ session: StudySession) {
+        sessions.removeAll {$0.id == session.id}
+    }
 }
 
 extension AppViewModel {
@@ -277,5 +281,9 @@ extension AppViewModel {
                 sessions: sessions.sorted {$0.startedAt > $1.startedAt}
             )
         }.sorted { $0.date > $1.date }
+    }
+    
+    var chartGoalStats: [GoalState] {
+        return goalState.filter {$0.totalSeconds > 0}
     }
 }

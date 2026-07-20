@@ -54,12 +54,18 @@ private extension StatsView {
         VStack(alignment: .leading, spacing: 12) {
             Text("Study time per Goal")
                 .font(.headline)
-            
-            if viewModel.goalState.allSatisfy({$0.totalSeconds == 0}){
+            if viewModel.goals.isEmpty {
                 ContentUnavailableView(
                     "No study time data",
                     systemImage: "chart.bar",
                     description: Text("Add your first goal to start tracking progress")
+                )
+            }
+          else if viewModel.chartGoalStats.isEmpty{
+                ContentUnavailableView(
+                    "No study time data",
+                    systemImage: "chart.bar",
+                    description: Text("Complete some study Sessions to see your learning chart")
                 )
             } else {
                 Chart(viewModel.sortedGoalStats){ stat in

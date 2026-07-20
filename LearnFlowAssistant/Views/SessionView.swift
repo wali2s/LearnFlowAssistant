@@ -10,6 +10,8 @@ import SwiftUI
 struct SessionView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @State private var showStopConfirmation = false
+    @State private var showDeleteConfirmation = false
+    @State private var sessionToDelete: StudySession?
     
     private var selectedGoalTitle: String {
         guard let selectedGoalId = viewModel.selectedGoalId,
@@ -40,6 +42,24 @@ struct SessionView: View {
                 }
             }message: {
                 Text("Are you sure you want to stop the session?")
+            }
+            .confirmationDialog(
+                "Delete Session",
+                isPresented: $showDeleteConfirmation,
+                titleVisibility: .visible
+            ){
+                Button("Delete Session", role: .destructive){
+                    
+                    if let session = sessionToDelete {
+                        viewModel.deleteSession(session)
+                        sessionToDelete = nil
+                    }
+                }
+                Button ("Cancel", role: .cancel){
+                    sessionToDelete = nil
+                }
+            } message: {
+                Text("Are you sure you want to delete this session?")
             }
         }
     }
@@ -126,6 +146,15 @@ extension SessionView {
                                 RecentSessionRow(session: session)
                             }
                             .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button {
+                                    sessionToDelete = session
+                                    showDeleteConfirmation = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .tint(.red)
+                            }
                             .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
