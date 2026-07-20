@@ -12,7 +12,7 @@ struct StudySession: Identifiable, Codable {
     let goalId: UUID
     let goalTitle: String
     let startedAt: Date
-    let endedAt: Date
+    let endedAt: Date?
     let durationInSeconds: Int
 
     init(

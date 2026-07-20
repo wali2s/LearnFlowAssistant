@@ -19,6 +19,24 @@ enum GoalSortOption: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+struct SessionSection: Identifiable {
+    let date : Date
+    let sessions: [StudySession]
+    
+    var id: Date { date }
+    
+    var title: String {
+        if Calendar.current.isDateInToday(date) {
+            return "Today"
+        } else if Calendar.current.isDateInYesterday(date) {
+            return "Yesterday"
+        } else {
+            return date.formatted(date : .abbreviated, time: .omitted)
+        }
+    }
+}
+
+
 final class AppViewModel: ObservableObject {
     @Published var goals: [LearningGoal] = []
     @Published var title: String = ""
@@ -247,5 +265,17 @@ extension AppViewModel {
                 return lhs.isCompleted && !rhs.isCompleted
             }
         }
+    }
+    var groupedRecentSessions: [SessionSection] {
+        let grouped = Dictionary(grouping: recentSessions) { session in
+            Calendar.current.startOfDay(for: session.startedAt)
+        }
+        
+        return grouped.map { date, sessions in
+            SessionSection(
+                date: date,
+                sessions: sessions.sorted {$0.startedAt > $1.startedAt}
+            )
+        }.sorted { $0.date > $1.date }
     }
 }

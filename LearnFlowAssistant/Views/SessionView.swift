@@ -117,15 +117,24 @@ extension SessionView {
                 .listRowSeparator(.hidden)
                 
             }else{
-                ForEach(viewModel.recentSessions) { session in
-                    RecentSessionRow(session: session)
-                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                ForEach(viewModel.groupedRecentSessions) { section in
+                    Section(section.title) {
+                        ForEach(section.sessions) { session in
+                            NavigationLink {
+                                SessionDetailView(session: session)
+                            } label: {
+                                RecentSessionRow(session: session)
+                            }
+                            .buttonStyle(.plain)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        }
+                    }
+                    .listSectionSeparator(.hidden)
                 }
             }
         }
-        .listSectionSeparator(.hidden)
     }
 }
 
