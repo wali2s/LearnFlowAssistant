@@ -184,6 +184,21 @@ extension AppViewModel {
         }
     }
     
+    func sessions(for goalId: UUID) -> [StudySession] {
+        return sessions
+            .filter { $0.goalId == goalId }
+            .sorted { $0.startedAt > $1.startedAt }
+    }
+    
+    func sessionCount(for goalId: UUID) -> Int {
+        sessions(for: goalId).count
+    }
+    
+    func totalStudyTimeText(for goalId: UUID) -> String {
+        let totalSeconds = sessions(for: goalId).reduce(0) { $0 + $1.durationInSeconds }
+        return formattedDuration(totalSeconds)
+    }
+    
     func formattedDuration(_ totalSeconds: Int) -> String {
         let hours = totalSeconds / 3600
         let minutes = (totalSeconds % 3600) / 60
@@ -285,5 +300,47 @@ extension AppViewModel {
     
     var chartGoalStats: [GoalState] {
         return goalState.filter {$0.totalSeconds > 0}
+    }
+    
+    var activeGoals: [LearningGoal] {
+        return goals.filter { !$0.isCompleted }
+    }
+    
+    var longestSession: StudySession? {
+        sessions.max(by: {$0.durationInSeconds < $1.durationInSeconds})
+    }
+    
+    var longestSessionText: String {
+        guard let longestSession else { return "0 sec" }
+        return longestSession.durationText
+    }
+
+    var avarageSessinDurationText: String {
+        guard !sessions.isEmpty else { return "0 sec" }
+        
+        let avarageSeconds = totalStudySeconds / sessions.count
+        let hour = avarageSeconds / 3600
+        let minutes = (avarageSeconds % 3600) / 60
+        let seconds = avarageSeconds % 60
+        
+        if hour > 0 {
+            return "\(hour) h \(minutes) min \(seconds) sec"
+        } else if minutes > 0 {
+            return "\(minutes) min \(seconds) sec"
+        } else {
+            return "\(seconds) sec"
+        }
+    }
+    
+    var mostProductiveGoalTitle: String {
+        sortedGoalStats.first?.goalTitle ?? "No data"
+    }
+    
+    var mostProductiveGoalTimeText: String {
+        sortedGoalStats.first?.totalTimeText ?? "0 sec"
+    }
+    
+    var totalStudyMinutes: Double {
+        Double(totalStudySeconds) / 60.0
     }
 }

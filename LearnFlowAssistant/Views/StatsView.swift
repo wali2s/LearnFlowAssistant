@@ -13,8 +13,7 @@ struct StatsView: View {
         NavigationStack {
             ScrollView{
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Stattistics")
-                        .font(.title.bold())
+                   
                     if viewModel.goals.isEmpty {
                         ContentUnavailableView(
                             "No statistics yet",
@@ -22,7 +21,9 @@ struct StatsView: View {
                             description: Text("Add your first goal to start tracking progress")
                         )
                     }else {
-                        summarySection
+                        headerSection
+                        overviewSection
+                        insightsSections
                         chartSection
                     }
                    
@@ -40,71 +41,104 @@ struct StatsView: View {
     }
     
 private extension StatsView {
-    var summarySection: some View {
+    var headerSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Statistics Overview").font(.title.bold())
+            Text("Track your learning progress across goals and sessions.").font(.subheadline)
+        }
+    }
+    var overviewSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SummaryCard(title: "Total Goals", value:"\(viewModel.totalGoalCount)", color: .blue)
-            SummaryCard(title: "Actie Goals", value: "\(viewModel.activeGoalCount)", color: .orange)
-            SummaryCard(title: "Completed Goals", value: "\(viewModel.completedGoalsCount)", color: .green)
-            SummaryCard(title: "Total Sessions", value: "\(viewModel.totalSessionCount)", color: .purple)
-            SummaryCard(title: "Study Time", value: "\(viewModel.totalStudyTimeText)", color: .pink)
+            Text("Overview")
+                           .font(.headline)
+
+                       HStack {
+                           SummaryCard(title: "Goals", value: "\(viewModel.totalGoalCount)", color: .blue)
+                           SummaryCard(title: "Sessions", value: "\(viewModel.totalSessionCount)", color: .green)
+                       }
+
+                       HStack {
+                           SummaryCard(title: "Study Time", value: viewModel.totalStudyTimeText, color: .orange)
+                           SummaryCard(title: "Active", value: "\(viewModel.activeGoalCount)", color: .purple)
+                       }
+        }
+    }
+    
+    var insightsSections: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Session Insights")
+                .font(.headline)
+            
+            HStack {
+                SummaryCard(title: "Average Session", value: viewModel.avarageSessinDurationText, color: .pink)
+                SummaryCard(title: "Longest Session", value: viewModel.longestSessionText, color: .red)
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Top Goal")
+                                    .font(.subheadline.weight(.semibold))
+
+                                Text(viewModel.mostProductiveGoalTitle)
+                                    .font(.headline)
+
+                                Text("Study Time: \(viewModel.mostProductiveGoalTimeText)")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
+            
         }
     }
     
     var chartSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Study time per Goal")
-                .font(.headline)
-            if viewModel.goals.isEmpty {
-                ContentUnavailableView(
-                    "No study time data",
-                    systemImage: "chart.bar",
-                    description: Text("Add your first goal to start tracking progress")
-                )
-            }
-          else if viewModel.chartGoalStats.isEmpty{
-                ContentUnavailableView(
-                    "No study time data",
-                    systemImage: "chart.bar",
-                    description: Text("Complete some study Sessions to see your learning chart")
-                )
-            } else {
-                Chart(viewModel.sortedGoalStats){ stat in
-                    let minutes = Double (stat.totalSeconds) / 60
-                    
-                    BarMark(
-                        x: .value("Goal", stat.goalTitle),
-                        y: .value("Minutes", minutes)
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Study Time per Goal")
+                    .font(.headline)
+
+                if viewModel.chartGoalStats.isEmpty {
+                    ContentUnavailableView(
+                        "No chart data yet",
+                        systemImage: "chart.bar",
+                        description: Text("Complete some study sessions to see your chart.")
                     )
-                    .foregroundStyle(color(totalSeconds: stat.totalSeconds))
-                    .cornerRadius(7)
-                    .annotation(position: .top) {
-                        Text("\(minutes, specifier: "%.0f") min")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    RuleMark(y: .value("Average", viewModel.averageStudyMinutesPerGoal))
-                        .foregroundStyle(.blue)
-                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [3]))
-                        .annotation(position: .top, alignment: .trailing)
-                    {
-                            Text("Average: \(viewModel.averageStudyMinutesPerGoal, specifier: "%.0f") min")
-                                .font(.caption)
-                                .foregroundStyle(.blue)
+                } else {
+                    Chart(viewModel.sortedGoalStats) { stat in
+                        let minutes = Double(stat.totalSeconds) / 60
+
+                        BarMark(
+                            x: .value("Goal", stat.goalTitle),
+                            y: .value("Minutes", minutes)
+                        )
+                        .foregroundStyle(color(totalSeconds: stat.totalSeconds))
+                        .cornerRadius(7)
+                        .annotation(position: .top) {
+                            Text("\(minutes, specifier: "%.0f") min")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
                         }
-                }
-               
-                    
-            
-                .frame(height: 180)
-                .chartYAxis {
-                    AxisMarks(position: .leading)
+
+                        RuleMark(y: .value("Average", viewModel.averageStudyMinutesPerGoal))
+                            .foregroundStyle(.blue)
+                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [4]))
+                            .annotation(position: .top, alignment: .trailing) {
+                                Text("Avg \(viewModel.averageStudyMinutesPerGoal, specifier: "%.0f") min")
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                            }
+                    }
+                    .frame(height: 220)
+                    .chartYAxis {
+                        AxisMarks(position: .leading)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(16)
                 }
             }
-          }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(17)
-    }
+        }
     
     func color(totalSeconds: Int) -> Color {
         

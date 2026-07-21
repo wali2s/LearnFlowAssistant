@@ -80,7 +80,7 @@ extension SessionView {
                 Picker("Learning Goal", selection:$viewModel.selectedGoalId){
                     Text("Select a goal")
                         .tag(UUID?.none)
-                    ForEach(viewModel.goals){ goal in
+                    ForEach(viewModel.activeGoals){ goal in
                         Text(goal.title).tag(Optional(goal.id))
                     }
                 }

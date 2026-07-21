@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct GoalDetailView: View {
-    
     @EnvironmentObject var viewModel: AppViewModel
+    
     let goalId: UUID
     @State var editedTitle: String
     @State var editedSubject: String
@@ -28,6 +28,10 @@ struct GoalDetailView: View {
         !editedTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !editedSubject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+    
+    private var goalSessions: [StudySession] {
+        viewModel.sessions(for: goalId)
+    }
     var body: some View {
         Form{
             Section("Edit Goal"){
@@ -40,19 +44,39 @@ struct GoalDetailView: View {
                     !canSave
                 )
             }
-            if let goal = currentGoal{
-                Section("Goal detail"){
-                    Text("Title: \(goal.title)")
-                    Text("Subject: \(goal.subject)")
-                    Text("Created: \(goal.createdAt.formatted(date: .abbreviated, time: .shortened))")
+            
+            Section("Progress") {
+                Text("Sessions: \(viewModel.sessionCount(for: goalId))")
+                Text("Study Time: \(viewModel.totalStudyTimeText(for: goalId))")
+            }
+            
+            Section("Recent Sessions") {
+                if goalSessions.isEmpty {
+                    ContentUnavailableView (
+                        "No sessions yet",
+                        systemImage: "clock",
+                        description: Text("Start your first session for this goal")
+                    )
+                } else {
+                    ForEach( goalSessions.prefix(5)){ session in
+                        NavigationLink {
+                            SessionDetailView(session: session)
+                        } label: {
+                            RecentSessionRow (session: session)
+                        }
+                    }
                 }
             }
+            
         }
         .navigationTitle("Goal Detail")
     }
 }
 
 #Preview {
-    GoalDetailView(goal: LearningGoal(title: "", subject: ""))
-        .environmentObject(AppViewModel())
+    NavigationStack {
+        GoalDetailView(goal: LearningGoal(title: "Learn Swift", subject: "Swift"))
+            .environmentObject(AppViewModel())
+    }
+    
 }
