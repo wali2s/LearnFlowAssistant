@@ -404,4 +404,53 @@ extension AppViewModel {
         return longest
 
     }
+    
+    var achievements: [Achievement] {
+        [
+            Achievement(
+                       title: "First Session",
+                       description: "Complete your first study session",
+                       icon: "play.circle.fill",
+                       isUnlocked: totalSessionCount >= 1
+                   ),
+                   Achievement(
+                       title: "5 Sessions",
+                       description: "Complete five study sessions",
+                       icon: "flame.fill",
+                       isUnlocked: totalSessionCount >= 5
+                   ),
+                   Achievement(
+                       title: "10 Sessions",
+                       description: "Complete ten study sessions",
+                       icon: "bolt.fill",
+                       isUnlocked: totalSessionCount >= 10
+                   ),
+                   Achievement(
+                       title: "1 Hour",
+                       description: "Study for a total of one hour",
+                       icon: "clock.fill",
+                       isUnlocked: totalStudySeconds >= 3600
+                   ),
+                   Achievement(
+                       title: "5 Hours",
+                       description: "Study for a total of five hours",
+                       icon: "timer",
+                       isUnlocked: totalStudySeconds >= 18000
+                   ),
+                   Achievement(
+                       title: "First Goal Done",
+                       description: "Complete your first learning goal",
+                       icon: "checkmark.seal.fill",
+                       isUnlocked: completedGoalsCount >= 1
+                   )
+        ]
+    }
+    
+    var unlockedAchievements: [Achievement] {
+        achievements.filter { $0.isUnlocked }
+    }
+    
+    var lockedAchievements: [Achievement] {
+        achievements.filter { !$0.isUnlocked }
+    }
 }

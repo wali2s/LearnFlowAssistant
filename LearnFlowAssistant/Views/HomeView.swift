@@ -16,6 +16,7 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     headerSection
                     summarySection
+                    achievementsSection
                     streakSection
                     recentGoalsSection
                     quickActionsSection
@@ -95,12 +96,55 @@ struct HomeView: View {
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity,
-                               alignment: .leading)
-                        .background(Color(.systemGray6))
-                        .presentationCornerRadius(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .cardStyle()
                     }
+                }
+            }
+        }
+    }
+    
+    private var achievementsSection: some View {
+        VStack(alignment: .leading, spacing: 12){
+            Text("Achievements")
+                .font(.headline)
+            
+            if viewModel.achievements.isEmpty {
+                ContentUnavailableView(
+                    "No Achievements yet",
+                    systemImage: "rosette",
+                    description: Text("Start studying to unlock your first milestone")
+                )
+            } else {
+                ForEach(viewModel.achievements.prefix(4)){ achievement in
+                    
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: achievement.icon)
+                            .font(.title3)
+                            .foregroundStyle(achievement.isUnlocked ? .yellow : .gray)
+                            .frame(width: 36, height: 36)
+                            .background((achievement.isUnlocked ? Color.yellow : Color.gray).opacity(0.15)
+                            ).clipShape(Circle())
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(achievement.title)
+                                .font(.headline)
+                                .foregroundStyle(achievement.isUnlocked ? .primary : .secondary)
+                            Text(achievement.description)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        if achievement.isUnlocked {
+                            Image(systemName: "checkmark.circle")
+                                .foregroundStyle(.green)
+                        }
+                    }
+                    
+                    .cardStyle()
+                    
                 }
             }
         }
