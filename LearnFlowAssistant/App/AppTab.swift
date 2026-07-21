@@ -12,4 +12,5 @@ enum AppTab{
     case goals
     case session
     case stats
+    case achievements
 }

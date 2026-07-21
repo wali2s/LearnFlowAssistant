@@ -33,7 +33,12 @@ struct ContentView: View {
                 .tabItem {
                     Label("Stats", systemImage: "chart.bar")
                 }
-                .tag(AppTab.stats) 
+                .tag(AppTab.stats)
+            AchievementsView()
+                .tabItem {
+                    Label("Achievements", systemImage: "rosette")
+                }
+                .tag(AppTab.achievements)
         }
     }
 }

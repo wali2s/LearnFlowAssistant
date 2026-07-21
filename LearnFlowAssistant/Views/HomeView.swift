@@ -16,7 +16,7 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     headerSection
                     summarySection
-                    achievementsSection
+                    achievementsPreviewSection
                     streakSection
                     recentGoalsSection
                     quickActionsSection
@@ -104,49 +104,59 @@ struct HomeView: View {
         }
     }
     
-    private var achievementsSection: some View {
+    private var achievementsPreviewSection: some View {
         VStack(alignment: .leading, spacing: 12){
-            Text("Achievements")
-                .font(.headline)
-            
-            if viewModel.achievements.isEmpty {
-                ContentUnavailableView(
-                    "No Achievements yet",
-                    systemImage: "rosette",
-                    description: Text("Start studying to unlock your first milestone")
-                )
-            } else {
-                ForEach(viewModel.achievements.prefix(4)){ achievement in
-                    
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: achievement.icon)
-                            .font(.title3)
-                            .foregroundStyle(achievement.isUnlocked ? .yellow : .gray)
-                            .frame(width: 36, height: 36)
-                            .background((achievement.isUnlocked ? Color.yellow : Color.gray).opacity(0.15)
-                            ).clipShape(Circle())
+            HStack {
+                       Text("Achievements")
+                           .font(.headline)
+
+                       Spacer()
+
+                       Button("See All") {
+                           selectedTab = .achievements
+                       }
+                       .font(.subheadline.weight(.semibold))
+                   }
+                
+                if viewModel.achievements.isEmpty {
+                    ContentUnavailableView(
+                        "No Achievements yet",
+                        systemImage: "rosette",
+                        description: Text("Start studying to unlock your first milestone")
+                    )
+                } else {
+                    ForEach(viewModel.achievements.prefix(4)){ achievement in
                         
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(achievement.title)
-                                .font(.headline)
-                                .foregroundStyle(achievement.isUnlocked ? .primary : .secondary)
-                            Text(achievement.description)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: achievement.icon)
+                                .font(.title3)
+                                .foregroundStyle(achievement.isUnlocked ? .yellow : .gray)
+                                .frame(width: 36, height: 36)
+                                .background((achievement.isUnlocked ? Color.yellow : Color.gray).opacity(0.15)
+                                ).clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(achievement.title)
+                                    .font(.headline)
+                                    .foregroundStyle(achievement.isUnlocked ? .primary : .secondary)
+                                Text(achievement.description)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if achievement.isUnlocked {
+                                Image(systemName: "checkmark.circle")
+                                    .foregroundStyle(.green)
+                            }
                         }
                         
-                        Spacer()
+                        .cardStyle()
                         
-                        if achievement.isUnlocked {
-                            Image(systemName: "checkmark.circle")
-                                .foregroundStyle(.green)
-                        }
                     }
-                    
-                    .cardStyle()
-                    
                 }
-            }
+            
         }
     }
     
