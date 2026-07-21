@@ -153,28 +153,28 @@ extension AppViewModel {
     var totalGoalCount: Int {
         goals.count
     }
-
+    
     var activeGoalCount: Int {
         goals.filter { !$0.isCompleted }.count
     }
-
+    
     var completedGoalsCount: Int {
         goals.filter { $0.isCompleted }.count
     }
-
+    
     var totalSessionCount: Int {
         sessions.count
     }
-
+    
     var totalStudySeconds: Int {
         sessions.reduce(0) { $0 + $1.durationInSeconds }
     }
-
+    
     var totalStudyTimeText: String {
         let hours = totalStudySeconds / 3600
         let minutes = (totalStudySeconds % 3600) / 60
         let seconds = totalStudySeconds % 60
-
+        
         if hours > 0 {
             return "\(hours) h \(minutes) min \(seconds) sec"
         } else if minutes > 0 {
@@ -203,14 +203,14 @@ extension AppViewModel {
         let hours = totalSeconds / 3600
         let minutes = (totalSeconds % 3600) / 60
         let seconds = totalSeconds % 60
-
+        
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
-
+    
     var recentGoals: [LearningGoal] {
         Array(goals.prefix(3))
     }
-
+    
     var recentSessions: [StudySession] {
         Array(sessions.prefix(5))
     }
@@ -275,7 +275,7 @@ extension AppViewModel {
                 }
                 return !lhs.isCompleted && rhs.isCompleted
             }
-
+            
         case .completedFirst:
             return searchedGoals.sorted { lhs, rhs in
                 if lhs.isCompleted == rhs.isCompleted {
@@ -314,7 +314,7 @@ extension AppViewModel {
         guard let longestSession else { return "0 sec" }
         return longestSession.durationText
     }
-
+    
     var avarageSessinDurationText: String {
         guard !sessions.isEmpty else { return "0 sec" }
         
@@ -342,5 +342,66 @@ extension AppViewModel {
     
     var totalStudyMinutes: Double {
         Double(totalStudySeconds) / 60.0
+    }
+    
+    var studyDays: [Date] {
+        let calendar = Calendar.current
+
+        let uniqueDays = Set(
+            sessions.map { calendar.startOfDay(for: $0.startedAt) }
+        )
+
+        return uniqueDays.sorted()
+    }
+    var currentStreak: Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+        
+        let days = Set(studyDays)
+        
+        guard days.contains(today) || days.contains(yesterday) else {
+            return 0
+        }
+        
+        var streak = 0
+        
+        var currentDay = days.contains(today) ? today : yesterday
+        
+        while days.contains(currentDay) {
+            streak += 1
+            guard let previosDay = calendar.date(byAdding: .day, value: -1, to: currentDay) else {
+                return streak
+            }
+            
+            currentDay = previosDay
+        }
+        return streak
+    }
+    
+    var longestStreak: Int {
+        let calendar = Calendar.current
+        let days = studyDays
+        
+        guard !days.isEmpty else { return 0 }
+        guard days.count > 1 else { return 1 }
+        
+        var longest = 1
+        var current = 1
+        
+        for index in 1..<days.count {
+            let previosDay = days[index - 1]
+            let currentDay = days[index]
+            
+            if let expectedNextDay = calendar.date(byAdding: .day, value: 1, to: previosDay), calendar.isDate(expectedNextDay, inSameDayAs: currentDay) {
+                current += 1
+                longest = max(longest, current)
+            } else {
+                current = 1
+            }
+            
+        }
+        return longest
+
     }
 }

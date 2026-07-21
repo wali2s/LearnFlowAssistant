@@ -16,6 +16,7 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     headerSection
                     summarySection
+                    streakSection
                     recentGoalsSection
                     quickActionsSection
                 }
@@ -53,6 +54,27 @@ struct HomeView: View {
         
     }
     
+    private var streakSection: some View{
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Learning Streak")
+                .font(.headline)
+            HStack{
+                SummaryCard(title: "Current Streak", value: "\(viewModel.currentStreak) days", color: .orange)
+                SummaryCard(title: "Best Streak", value: "\(viewModel.longestStreak) days", color: .green)
+            }
+            Text(streakMessage)
+        }
+    }
+    
+    private var streakMessage: String {
+        if viewModel.currentStreak == 0 {
+            return "Start a study session today to begin your streak."
+        } else if viewModel.currentStreak == 1 {
+            return "Good Start - keep learning tomorrow."
+        } else {
+            return "Great job - your learning habit is growing."
+        }
+    }
     private var recentGoalsSection: some View{
         VStack(alignment: .leading, spacing: 12){
             Text("last goals")
