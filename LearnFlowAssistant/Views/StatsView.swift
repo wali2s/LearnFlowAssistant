@@ -33,7 +33,6 @@ struct StatsView: View {
                     }.padding()
                     
                 }
-                Spacer()
             }
             .padding()
             .navigationTitle("Stats")
@@ -43,7 +42,7 @@ struct StatsView: View {
 private extension StatsView {
     var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Statistics Overview").font(.title.bold())
+            Text("Statistics").font(.title.bold())
             Text("Track your learning progress across goals and sessions.").font(.subheadline)
         }
     }

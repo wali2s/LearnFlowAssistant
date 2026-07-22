@@ -12,6 +12,7 @@ struct SessionView: View {
     @State private var showStopConfirmation = false
     @State private var showDeleteConfirmation = false
     @State private var sessionToDelete: StudySession?
+    @State private var showPomodoroFinishedAlert = false
     
     private var selectedGoalTitle: String {
         guard let selectedGoalId = viewModel.selectedGoalId,
@@ -22,6 +23,7 @@ struct SessionView: View {
     var body: some View {
         NavigationStack{
             Form{
+                sessionModeSection
                 goalPickerSection
                 currentSessionSection
                 recentSessionsSection
@@ -62,11 +64,43 @@ struct SessionView: View {
                 Text("Are you sure you want to delete this session?")
             }
         }
+        .alert("Pmodoro Finshed", isPresented: $showPomodoroFinishedAlert){
+            Button("OK", role: .cancel){}
+        }message: {
+            Text("Your focus session has ended.")
+        }
+        .onChange(of: viewModel.didFinishPomodoro) { didNotFinish, didFinish in
+            if didFinish {
+                showPomodoroFinishedAlert = true
+                viewModel.didFinishPomodoro = false
+            }
+        }
     }
-    
 }
 
 extension SessionView {
+    
+    private var sessionModeSection: some View {
+        Section("Session Mode") {
+            Picker("Mode", selection: $viewModel.selectSessionMode) {
+                ForEach(SessionMode.allCases) { mode in
+                    Text(mode.rawValue).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+            .disabled(viewModel.activeSessionStart != nil)
+            
+            if viewModel.selectSessionMode == .pomodoro {
+                Picker("Focus Length", selection: $viewModel.pomodoroFocusMinutes) {
+                    ForEach (viewModel.pomodoroMinutesOptions, id: \.self) {
+                        minutes in
+                        Text("\(minutes) min").tag(minutes)
+                    }
+                }
+            }
+        }
+        
+    }
     
     private var goalPickerSection : some View {
         Section("Choose Goal"){
@@ -107,6 +141,18 @@ extension SessionView {
                 SessionTimerCard(startDate: startDate, goalTitle: viewModel.currentGoalTitle, formattedDuration: viewModel.formattedDuration)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
+                LabeledContent(
+                    "Mode",
+                    value: viewModel.selectSessionMode.rawValue
+                )
+                .font(.subheadline)
+                if viewModel.selectSessionMode == .pomodoro {
+                    LabeledContent(
+                        "Remaining Focus Time",
+                        value: viewModel.formattedDuration(viewModel.pomodoroRemainingSeconds))
+                    .font(.headline)
+                }
+                
                 Button("Stop Session", role: .destructive){
                     showStopConfirmation = true
                 }
@@ -114,11 +160,18 @@ extension SessionView {
                 VStack(alignment: .leading, spacing: 8){
                     Text("No active session")
                         .font(.headline)
-                    Text("Choose a goal and start a focused session")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    if viewModel.selectSessionMode == .pomodoro {
+                        Text("Pomodoro mode is active. Your Focus session will run for \(viewModel.pomodoroFocusMinutes) minutes.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("Choose a goal and start a focused session.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                Button("Start Session"){
+               
+                Button(viewModel.selectSessionMode == .pomodoro ? "Start Pomodoro" : "Start Session"){
                     viewModel.startSession()
                 }
                 .disabled(viewModel.selectedGoalId == nil || !viewModel.hasSelectableGoal)

@@ -39,7 +39,13 @@ struct GoalDetailView: View {
             Section("Edit Goal"){
                 TextField("Goal title", text:$editedTitle)
                 TextField("Goal subject", text: $editedSubject)
-                TextField("Goal notes", text: $editedNotes)
+                VStack(alignment: .leading, spacing: 8){
+                    Text("Notes")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    TextEditor(text: $editedNotes)
+                        .frame(minHeight: 120)
+                }
                 Button("save changes"){
                     viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject, notes: editedNotes)
                 }
@@ -78,7 +84,7 @@ struct GoalDetailView: View {
 
 #Preview {
     NavigationStack {
-        GoalDetailView(goal: LearningGoal(title: "Learn Swift", subject: "Swift", notes: "some Notes"))
+        GoalDetailView(goal: LearningGoal(title: "Learn Swift", subject: "Swift"))
             .environmentObject(AppViewModel())
     }
     

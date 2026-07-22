@@ -36,6 +36,12 @@ struct SessionSection: Identifiable {
     }
 }
 
+enum SessionMode: String,CaseIterable, Identifiable {
+    case free = "Free Session"
+    case pomodoro = "Pomodoro"
+    
+    var id : String { rawValue }
+}
 
 final class AppViewModel: ObservableObject {
     @Published var goals: [LearningGoal] = []
@@ -48,14 +54,22 @@ final class AppViewModel: ObservableObject {
     @Published var selectedGoalId: UUID?
     @Published var activeSessionStart: Date?
     @Published var currentGoalTitle: String = ""
+    @Published var selectSessionMode: SessionMode = .free
+    @Published var pomodoroFocusMinutes: Int = 25
+    @Published var pomodoroRemainingSeconds: Int = 0
     
     @Published var selectedGoalFilter: GoalFilter = .all
     @Published var selectedGoalSort: GoalSortOption = .titleAscending
     
     @Published var goalSearchText: String = ""
-
+    @Published var didFinishPomodoro: Bool = false
+    
     private var cancellables = Set<AnyCancellable>()
     private let storage = GoalStorageService()
+    let pomodoroMinutesOptions: [Int] = [1,15, 25, 30, 45, 60]
+    private var pomodoroTimer: Timer?
+    
+
 
     init() {
         goals = storage.load()
@@ -114,7 +128,7 @@ final class AppViewModel: ObservableObject {
         let trimmedSubject = subject.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty, !trimmedNotes.isEmpty else { return }
+        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty else { return }
         guard let index = goals.firstIndex(where: { $0.id == id }) else { return }
 
         goals[index].title = trimmedTitle
@@ -131,13 +145,19 @@ final class AppViewModel: ObservableObject {
 
     func startSession() {
         sanitizeSelectedGoal()
-        
+        didFinishPomodoro = false
         guard activeSessionStart == nil else { return }
         guard let selectedGoalId,
               let goal = activeGoals.first(where: { $0.id == selectedGoalId }) else { return }
 
         activeSessionStart = Date()
         currentGoalTitle = goal.title
+        
+        if selectSessionMode == .pomodoro {
+            pomodoroRemainingSeconds = pomodoroFocusMinutes * 60
+            
+            startPomodoroTimer()
+        }
     }
 
     func stopSession() {
@@ -161,6 +181,9 @@ final class AppViewModel: ObservableObject {
         activeSessionStart = nil
         currentGoalTitle = ""
         self.selectedGoalId = nil
+        pomodoroRemainingSeconds = 0
+        pomodoroTimer?.invalidate()
+        pomodoroTimer = nil
     }
     
     func deleteSession(_ session: StudySession) {
@@ -497,5 +520,23 @@ extension AppViewModel {
     
     var hasSelectableGoal: Bool {
         !activeGoals.isEmpty
+    }
+    
+    private func startPomodoroTimer() {
+        pomodoroTimer?.invalidate()
+        
+        pomodoroTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true){ [weak self] _ in
+            guard let self else { return }
+            
+            if self.pomodoroRemainingSeconds > 0 {
+                self.pomodoroRemainingSeconds -= 1
+            } else {
+                self.pomodoroTimer?.invalidate()
+                self.pomodoroTimer = nil
+                self.didFinishPomodoro = true
+                self.stopSession()
+            }
+            
+        }
     }
 }

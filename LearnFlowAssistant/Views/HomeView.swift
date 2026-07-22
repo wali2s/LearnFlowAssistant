@@ -18,6 +18,7 @@ struct HomeView: View {
                     summarySection
                     achievementsPreviewSection
                     streakSection
+                    lastSessionSection
                     recentGoalsSection
                     quickActionsSection
                 }
@@ -26,6 +27,7 @@ struct HomeView: View {
             }
         }
     }
+    
     private var headerSection: some View{
         VStack(alignment: .leading, spacing: 8){
             Text("Welcome back")
@@ -33,7 +35,7 @@ struct HomeView: View {
             Text("Keep your learning goals and sessions in mind.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-        }
+        }.cardStyle()
     }
     
     private var summarySection: some View{
@@ -78,7 +80,7 @@ struct HomeView: View {
     }
     private var recentGoalsSection: some View{
         VStack(alignment: .leading, spacing: 12){
-            Text("last goals")
+            Text("Last goals")
                 .font(.headline)
             
             if viewModel.goals.isEmpty {
@@ -95,11 +97,46 @@ struct HomeView: View {
                             Text(goal.subject)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
+                            
+                            if !goal.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                Label{
+                                    Text(goal.notes)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                } icon: {
+                                    Image(systemName: "note.text")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .cardStyle()
                     }
                 }
+            }
+        }
+    }
+    
+    private var lastSessionSection: some View {
+        VStack(alignment: .leading, spacing: 12){
+            Text("Last Session")
+                .font(.headline)
+            
+            if let session = viewModel.recentSessions.first {
+                VStack(alignment: .leading, spacing: 6){
+                    LabeledContent("Goal", value: session.goalTitle)
+                    LabeledContent("Duration", value: session.durationText)
+                    LabeledContent("Started", value: session.formattedStartDate)
+                }
+                .cardStyle()
+            } else {
+                ContentUnavailableView (
+                     "No session yet",
+                     systemImage: "clock",
+                     description: Text("Your latest finished session will apear here.")
+                    )
             }
         }
     }
@@ -206,7 +243,7 @@ struct HomeView: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal)
             } else if !canStartSession {
-                Text("You have no goals to work on.")
+                Text("You have no active goals to work on.")
                     .foregroundStyle(.secondary)
                     .padding(.horizontal)
             }
@@ -233,7 +270,7 @@ struct HomeView: View {
     }
     
     var canStartSession: Bool {
-        !viewModel.goals.isEmpty
+        !viewModel.activeGoals.isEmpty
     }
     }
 
