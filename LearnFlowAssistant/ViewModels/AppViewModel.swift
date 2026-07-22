@@ -86,7 +86,7 @@ final class AppViewModel: ObservableObject {
         let trimmedSubject = subject.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty, !trimmedNotes.isEmpty else { return }
+        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty else { return }
 
         let goal = LearningGoal(title: trimmedTitle, subject: trimmedSubject, notes: trimmedNotes)
         goals.append(goal)
@@ -134,7 +134,7 @@ final class AppViewModel: ObservableObject {
         
         guard activeSessionStart == nil else { return }
         guard let selectedGoalId,
-              let goal = goals.first(where: { $0.id == selectedGoalId }) else { return }
+              let goal = activeGoals.first(where: { $0.id == selectedGoalId }) else { return }
 
         activeSessionStart = Date()
         currentGoalTitle = goal.title
