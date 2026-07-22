@@ -25,9 +25,10 @@ struct GoalsView: View {
                 Section("New Goal") {
                     TextField("Goal title", text: $viewModel.title)
                         .focused($focusedField, equals: .title)
-                    TextField("Subject", text: $viewModel.subject)
+                    TextField("Goal Subject", text: $viewModel.subject)
                         .focused($focusedField, equals: .subject)
                     
+                    TextField("Goal Notes", text: $viewModel.notes, axis: .vertical).lineLimit(3...6)
                     Button("Add Goal") {
                         viewModel.addGoal()
                         focusedField = nil
@@ -116,6 +117,19 @@ struct GoalsView: View {
                         Text(goal.subject)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+                        
+                        if !goal.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            Label {
+                                Text(goal.notes)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            } icon: {
+                                Image(systemName: "note.text")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                     Spacer()
                     Text(goal.isCompleted ? "Done": "Active")

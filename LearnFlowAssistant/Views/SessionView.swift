@@ -70,7 +70,7 @@ extension SessionView {
     
     private var goalPickerSection : some View {
         Section("Choose Goal"){
-            if viewModel.goals.isEmpty {
+            if !viewModel.hasSelectableGoal {
                 ContentUnavailableView(
                     "No goal available",
                     systemImage: "target",
@@ -121,7 +121,7 @@ extension SessionView {
                 Button("Start Session"){
                     viewModel.startSession()
                 }
-                .disabled(viewModel.selectedGoalId == nil || viewModel.goals.isEmpty)
+                .disabled(viewModel.selectedGoalId == nil || !viewModel.hasSelectableGoal)
             }
         }
     }

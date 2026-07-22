@@ -52,7 +52,7 @@ private extension AchievementsView {
             }
         }
     }
-    
+    @ViewBuilder
     func AchievmentRow(for achievement: Achievement, unlocked: Bool) -> some View {
         HStack( alignment: .top, spacing: 12) {
             Image(systemName: achievement.icon)
@@ -70,6 +70,13 @@ private extension AchievementsView {
                 Text(achievement.description)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                
+                Text(achievement.progressText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                ProgressView(value: achievement.progress)
+                    .tint(unlocked ? .green.opacity(0.6) : .blue.opacity(0.6))
             }
 
             Spacer()

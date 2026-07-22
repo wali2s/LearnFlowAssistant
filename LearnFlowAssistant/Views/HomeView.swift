@@ -142,6 +142,13 @@ struct HomeView: View {
                                 Text(achievement.description)
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
+                                
+                                Text(achievement.progressText)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                
+                                ProgressView(value: achievement.progress)
+                                    .tint(achievement.isUnlocked ? .green.opacity(0.6) : .blue.opacity(0.6))
                             }
                             
                             Spacer()

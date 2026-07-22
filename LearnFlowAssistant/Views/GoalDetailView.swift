@@ -13,11 +13,13 @@ struct GoalDetailView: View {
     let goalId: UUID
     @State var editedTitle: String
     @State var editedSubject: String
+    @State var editedNotes: String
     
     init(goal: LearningGoal){
         self.goalId = goal.id
         _editedTitle = State(initialValue: goal.title)
         _editedSubject = State(initialValue: goal.subject)
+        _editedNotes = State(initialValue: goal.notes)
     }
     
     private var currentGoal: LearningGoal?{
@@ -37,8 +39,9 @@ struct GoalDetailView: View {
             Section("Edit Goal"){
                 TextField("Goal title", text:$editedTitle)
                 TextField("Goal subject", text: $editedSubject)
+                TextField("Goal notes", text: $editedNotes)
                 Button("save changes"){
-                    viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject)
+                    viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject, notes: editedNotes)
                 }
                 .disabled(
                     !canSave
@@ -75,7 +78,7 @@ struct GoalDetailView: View {
 
 #Preview {
     NavigationStack {
-        GoalDetailView(goal: LearningGoal(title: "Learn Swift", subject: "Swift"))
+        GoalDetailView(goal: LearningGoal(title: "Learn Swift", subject: "Swift", notes: "some Notes"))
             .environmentObject(AppViewModel())
     }
     

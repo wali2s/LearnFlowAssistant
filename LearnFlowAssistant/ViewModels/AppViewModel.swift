@@ -42,7 +42,8 @@ final class AppViewModel: ObservableObject {
     @Published var title: String = ""
     @Published var subject: String = ""
     @Published var canSave: Bool = false
-
+    @Published var notes: String = ""
+    
     @Published var sessions: [StudySession] = []
     @Published var selectedGoalId: UUID?
     @Published var activeSessionStart: Date?
@@ -83,37 +84,54 @@ final class AppViewModel: ObservableObject {
     func addGoal() {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedSubject = subject.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty, !trimmedNotes.isEmpty else { return }
 
-        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty else { return }
-
-        let goal = LearningGoal(title: trimmedTitle, subject: trimmedSubject)
+        let goal = LearningGoal(title: trimmedTitle, subject: trimmedSubject, notes: trimmedNotes)
         goals.append(goal)
 
         title = ""
         subject = ""
+        notes = ""
     }
 
     func deleteGoal(id: UUID) {
         goals.removeAll { $0.id == id }
+        
+        if selectedGoalId == id {
+            selectedGoalId = nil
+        }
+        
+        if currentGoalTitle.isEmpty == false, goals.first(where: { $0.id == id}) == nil, activeSessionStart == nil {
+            currentGoalTitle = ""
+        }
+        sanitizeSelectedGoal()
     }
 
-    func updateGoal(id: UUID, title: String, subject: String) {
+    func updateGoal(id: UUID, title: String, subject: String, notes: String) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedSubject = subject.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty else { return }
+        guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty, !trimmedNotes.isEmpty else { return }
         guard let index = goals.firstIndex(where: { $0.id == id }) else { return }
 
         goals[index].title = trimmedTitle
         goals[index].subject = trimmedSubject
+        goals[index].notes = trimmedNotes
     }
 
     func toggleGoalCompletion(id: UUID) {
         guard let index = goals.firstIndex(where: { $0.id == id }) else { return }
         goals[index].isCompleted.toggle()
+        
+        sanitizeSelectedGoal()
     }
 
     func startSession() {
+        sanitizeSelectedGoal()
+        
         guard activeSessionStart == nil else { return }
         guard let selectedGoalId,
               let goal = goals.first(where: { $0.id == selectedGoalId }) else { return }
@@ -142,6 +160,7 @@ final class AppViewModel: ObservableObject {
         sessions.insert(session, at: 0)
         activeSessionStart = nil
         currentGoalTitle = ""
+        self.selectedGoalId = nil
     }
     
     func deleteSession(_ session: StudySession) {
@@ -411,37 +430,49 @@ extension AppViewModel {
                        title: "First Session",
                        description: "Complete your first study session",
                        icon: "play.circle.fill",
-                       isUnlocked: totalSessionCount >= 1
+                       currentValue: totalSessionCount,
+                       targetValue: 1,
+                       progressText: "\(min(totalSessionCount, 1))/1 sessions"
                    ),
                    Achievement(
                        title: "5 Sessions",
                        description: "Complete five study sessions",
                        icon: "flame.fill",
-                       isUnlocked: totalSessionCount >= 5
+                       currentValue: totalSessionCount,
+                       targetValue: 5,
+                       progressText: "\(min(totalSessionCount, 5))/5 sessions"
                    ),
                    Achievement(
                        title: "10 Sessions",
                        description: "Complete ten study sessions",
                        icon: "bolt.fill",
-                       isUnlocked: totalSessionCount >= 10
+                       currentValue: totalSessionCount,
+                       targetValue: 10,
+                       progressText: "\(min(totalSessionCount, 10))/10 sessions"
                    ),
                    Achievement(
                        title: "1 Hour",
                        description: "Study for a total of one hour",
                        icon: "clock.fill",
-                       isUnlocked: totalStudySeconds >= 3600
+                       currentValue: totalStudySeconds,
+                       targetValue: 3600,
+                       progressText: "\(min(totalStudySeconds / 60, 60))/60 min"
                    ),
                    Achievement(
                        title: "5 Hours",
                        description: "Study for a total of five hours",
                        icon: "timer",
-                       isUnlocked: totalStudySeconds >= 18000
+                       currentValue: totalStudySeconds,
+                       targetValue: 18000,
+                       progressText: "\(min(totalStudySeconds / 60, 300))/300 min"
                    ),
                    Achievement(
                        title: "First Goal Done",
                        description: "Complete your first learning goal",
                        icon: "checkmark.seal.fill",
-                       isUnlocked: completedGoalsCount >= 1
+                       currentValue: completedGoalsCount,
+                       targetValue: 1,
+                       progressText: "\(min(completedGoalsCount, 1))/1 goals"
                    )
         ]
     }
@@ -452,5 +483,19 @@ extension AppViewModel {
     
     var lockedAchievements: [Achievement] {
         achievements.filter { !$0.isUnlocked }
+    }
+    
+    private func sanitizeSelectedGoal() {
+        guard let selectedGoalId else { return }
+        
+        let isStillslectable = activeGoals.contains { $0.id == selectedGoalId }
+        
+        if !isStillslectable {
+            self.selectedGoalId = nil
+        }
+    }
+    
+    var hasSelectableGoal: Bool {
+        !activeGoals.isEmpty
     }
 }
