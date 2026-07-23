@@ -9,12 +9,13 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @Binding var selectedTab: AppTab
-
+    
     var body: some View {
         NavigationStack {
             ScrollView{
                 VStack(alignment: .leading, spacing: 20) {
                     headerSection
+                    dailyChallengeSection
                     summarySection
                     achievementsPreviewSection
                     streakSection
@@ -85,35 +86,44 @@ struct HomeView: View {
             
             if viewModel.goals.isEmpty {
                 ContentUnavailableView("no goals yet", systemImage: "target",
-                description: Text("Start by adding your first goal"))
+                                       description: Text("Start by adding your first goal"))
             } else {
                 ForEach(viewModel.recentGoals){ goal in
                     NavigationLink(destination: GoalDetailView(goal: goal)){
-                        VStack(alignment: .leading, spacing: 6){
-                            Text(goal.title)
-                                .font(.headline)
-                                .foregroundStyle(.blue.opacity(0.8))
-                               
-                            Text(goal.subject)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            
-                            if !goal.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                Label{
-                                    Text(goal.notes)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
-                                } icon: {
-                                    Image(systemName: "note.text")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                        HStack{
+                            VStack(alignment: .leading, spacing: 6){
+                                Text(goal.title)
+                                    .font(.headline)
+                                    .foregroundStyle(.blue.opacity(0.8))
+                                
+                                Text(goal.subject)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                
+                                if !goal.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                    Label{
+                                        Text(goal.notes)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(2)
+                                    } icon: {
+                                        Image(systemName: "note.text")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                             }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .cardStyle()
+                       
                     }
+                    
                 }
             }
         }
@@ -125,18 +135,32 @@ struct HomeView: View {
                 .font(.headline)
             
             if let session = viewModel.recentSessions.first {
-                VStack(alignment: .leading, spacing: 6){
-                    LabeledContent("Goal", value: session.goalTitle)
-                    LabeledContent("Duration", value: session.durationText)
-                    LabeledContent("Started", value: session.formattedStartDate)
+                NavigationLink {
+                    SessionDetailView(session: session)
+                } label: {
+                    HStack(alignment: .top, spacing: 12){
+                        VStack(alignment: .leading, spacing: 10){
+                            LabeledContent("Goal", value: session.goalTitle)
+                            LabeledContent("Duration", value: session.durationText)
+                            LabeledContent("Started", value: session.formattedStartDate)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        
+                    }
+                    .cardStyle()
                 }
-                .cardStyle()
+                .buttonStyle(.plain)
             } else {
                 ContentUnavailableView (
-                     "No session yet",
-                     systemImage: "clock",
-                     description: Text("Your latest finished session will apear here.")
-                    )
+                    "No session yet",
+                    systemImage: "clock",
+                    description: Text("Your latest finished session will apear here.")
+                )
             }
         }
     }
@@ -144,62 +168,62 @@ struct HomeView: View {
     private var achievementsPreviewSection: some View {
         VStack(alignment: .leading, spacing: 12){
             HStack {
-                       Text("Achievements")
-                           .font(.headline)
-
-                       Spacer()
-
-                       Button("See All") {
-                           selectedTab = .achievements
-                       }
-                       .font(.subheadline.weight(.semibold))
-                   }
+                Text("Achievements")
+                    .font(.headline)
                 
-                if viewModel.achievements.isEmpty {
-                    ContentUnavailableView(
-                        "No Achievements yet",
-                        systemImage: "rosette",
-                        description: Text("Start studying to unlock your first milestone")
-                    )
-                } else {
-                    ForEach(viewModel.achievements.prefix(4)){ achievement in
+                Spacer()
+                
+                Button("See All") {
+                    selectedTab = .achievements
+                }
+                .font(.subheadline.weight(.semibold))
+            }
+            
+            if viewModel.achievements.isEmpty {
+                ContentUnavailableView(
+                    "No Achievements yet",
+                    systemImage: "rosette",
+                    description: Text("Start studying to unlock your first milestone")
+                )
+            } else {
+                ForEach(viewModel.achievements.prefix(4)){ achievement in
+                    
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: achievement.icon)
+                            .font(.title3)
+                            .foregroundStyle(achievement.isUnlocked ? .yellow : .gray)
+                            .frame(width: 36, height: 36)
+                            .background((achievement.isUnlocked ? Color.yellow : Color.gray).opacity(0.15)
+                            ).clipShape(Circle())
                         
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: achievement.icon)
-                                .font(.title3)
-                                .foregroundStyle(achievement.isUnlocked ? .yellow : .gray)
-                                .frame(width: 36, height: 36)
-                                .background((achievement.isUnlocked ? Color.yellow : Color.gray).opacity(0.15)
-                                ).clipShape(Circle())
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(achievement.title)
+                                .font(.headline)
+                                .foregroundStyle(achievement.isUnlocked ? .primary : .secondary)
+                            Text(achievement.description)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
                             
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(achievement.title)
-                                    .font(.headline)
-                                    .foregroundStyle(achievement.isUnlocked ? .primary : .secondary)
-                                Text(achievement.description)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                
-                                Text(achievement.progressText)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                
-                                ProgressView(value: achievement.progress)
-                                    .tint(achievement.isUnlocked ? .green.opacity(0.6) : .blue.opacity(0.6))
-                            }
+                            Text(achievement.progressText)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                             
-                            Spacer()
-                            
-                            if achievement.isUnlocked {
-                                Image(systemName: "checkmark.circle")
-                                    .foregroundStyle(.green)
-                            }
+                            ProgressView(value: achievement.progress)
+                                .tint(achievement.isUnlocked ? .green.opacity(0.6) : .blue.opacity(0.6))
                         }
                         
-                        .cardStyle()
+                        Spacer()
                         
+                        if achievement.isUnlocked {
+                            Image(systemName: "checkmark.circle")
+                                .foregroundStyle(.green)
+                        }
                     }
+                    
+                    .cardStyle()
+                    
                 }
+            }
             
         }
     }
@@ -221,7 +245,7 @@ struct HomeView: View {
                 
             }
             .padding(.horizontal)
-
+            
             
             
             Button {
@@ -259,11 +283,11 @@ struct HomeView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal)
-
             
-                
-            }
+            
+            
         }
+    }
     
     var isSessionRunning: Bool {
         viewModel.activeSessionStart != nil
@@ -272,7 +296,41 @@ struct HomeView: View {
     var canStartSession: Bool {
         !viewModel.activeGoals.isEmpty
     }
+    
+    private var dailyChallengeSection : some View {
+        VStack(alignment: .leading, spacing: 12){
+            Text("Daily Challenge")
+                .font(.headline)
+            
+            VStack(alignment: .leading, spacing: 10) {
+                Text(viewModel.dailyChallengeText)
+                    .font(.subheadline)
+                
+                ProgressView(value:viewModel.dailyGoalProgress)
+                    .tint(viewModel.hasCompletedDailyGoal ? .green : .secondary)
+                
+                HStack {
+                    Text("Today: \(viewModel.todayStudyMinutes) / \(viewModel.dailyStdyGoalMinutes) min")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                    
+                    if viewModel.hasCompletedDailyGoal {
+                        Label("Completed",systemImage: "checkmark.circle.fill")
+                            .font(.callout.weight(.semibold))
+                            .foregroundStyle(.green)
+                    } else {
+                        Text((viewModel.dailyChallengeProgressText))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .cardStyle()
+        }
     }
+}
 
 
 #Preview {

@@ -13,7 +13,7 @@ struct StatsView: View {
         NavigationStack {
             ScrollView{
                 VStack(alignment: .leading, spacing: 16) {
-                   
+                    
                     if viewModel.goals.isEmpty {
                         ContentUnavailableView(
                             "No statistics yet",
@@ -24,28 +24,28 @@ struct StatsView: View {
                         headerSection
                         overviewSection
                         insightsSections
+                        streakSection
                         chartSection
+                        achievementsSection
                     }
-                   
-                        
-                       
-                        
-                    }.padding()
-                    
                 }
+                .padding()
             }
-            .padding()
-            .navigationTitle("Stats")
         }
+        .padding()
+        .navigationTitle("Stats")
     }
+}
     
 private extension StatsView {
+    
     var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Statistics").font(.title.bold())
             Text("Track your learning progress across goals and sessions.").font(.subheadline)
         }
     }
+    
     var overviewSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Overview")
@@ -89,6 +89,90 @@ private extension StatsView {
                             .background(Color(.systemGray6))
                             .cornerRadius(12)
             
+        }
+    }
+    
+    var streakSection : some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Streak")
+                .font(.headline)
+            
+            HStack(spacing: 12) {
+                SummaryCard(title: "Current Streak", value: "\(viewModel.currentStreak) days", color: .orange)
+                SummaryCard(title: "Longest Streak", value: "\(viewModel.longestStreak) days", color: .red)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func achievementRow(for achievement: Achievement, isUnlocked: Bool) -> some View {
+            HStack (alignment: .top, spacing: 12) {
+                Image(systemName: achievement.icon)
+                    .font(.title3)
+                    .foregroundStyle(isUnlocked ? .yellow : .gray)
+                    .frame(width: 28)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(achievement.title)
+                            .font(.headline)
+                        
+                        if isUnlocked {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundStyle(.green)
+                        }
+                    }
+                    
+                    Text(achievement.description)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    
+                    Text(achievement.progressText)
+                        .font(.caption)
+                        .foregroundStyle(isUnlocked ? .green : .secondary)
+                    
+                    ProgressView(value: achievement.progress)
+                        .tint( isUnlocked ? .green : .secondary)
+                }
+                
+                Spacer()
+            }
+            .cardStyle()
+        }
+        
+    var achievementsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Achievements")
+            
+            if viewModel.achievements.isEmpty {
+                ContentUnavailableView(
+                    "No achievements yet",
+                    systemImage: "rosette",
+                    description: Text("Your unloced achievements will apear here.")
+                )
+            } else{
+                if !viewModel.unlockedAchievements.isEmpty {
+                    Text("Unlocked")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    
+                    ForEach(viewModel.unlockedAchievements) { achievement in
+                        achievementRow(for: achievement, isUnlocked: true)
+                    }
+                }
+                
+                if !viewModel.lockedAchievements.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("In Progress")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        
+                        ForEach(viewModel.lockedAchievements) { achievement in
+                            achievementRow(for: achievement, isUnlocked: false)
+                        }
+                    }
+                }
+            }
         }
     }
     

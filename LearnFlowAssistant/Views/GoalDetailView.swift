@@ -14,12 +14,16 @@ struct GoalDetailView: View {
     @State var editedTitle: String
     @State var editedSubject: String
     @State var editedNotes: String
+    @State private var hasDeadLine: Bool
+    @State private var editedDueDate: Date
     
     init(goal: LearningGoal){
         self.goalId = goal.id
         _editedTitle = State(initialValue: goal.title)
         _editedSubject = State(initialValue: goal.subject)
         _editedNotes = State(initialValue: goal.notes)
+        _hasDeadLine = State(initialValue: goal.dueDate != nil)
+        _editedDueDate = State(initialValue: goal.dueDate ?? Date())
     }
     
     private var currentGoal: LearningGoal?{
@@ -46,8 +50,17 @@ struct GoalDetailView: View {
                     TextEditor(text: $editedNotes)
                         .frame(minHeight: 120)
                 }
+                
+                Toggle("Set deadline", isOn: $hasDeadLine)
+                if hasDeadLine {
+                    DatePicker(
+                        "Deadline",
+                        selection: $editedDueDate,
+                        displayedComponents: .date
+                    )
+                }
                 Button("save changes"){
-                    viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject, notes: editedNotes)
+                    viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject, notes: editedNotes, dueDate: hasDeadLine ? editedDueDate : nil)
                 }
                 .disabled(
                     !canSave
@@ -57,6 +70,14 @@ struct GoalDetailView: View {
             Section("Progress") {
                 Text("Sessions: \(viewModel.sessionCount(for: goalId))")
                 Text("Study Time: \(viewModel.totalStudyTimeText(for: goalId))")
+                
+                if let dueDate = currentGoal?.dueDate {
+                    Text("Deadline: \(dueDate.formatted(date: .abbreviated, time: .omitted))")
+                    if dueDate < Calendar.current.startOfDay(for: Date()) && !(currentGoal?.isCompleted ?? false){
+                        Text("Status: Overdue")
+                            .foregroundStyle(.red)            
+                    }
+                }
             }
             
             Section("Recent Sessions") {

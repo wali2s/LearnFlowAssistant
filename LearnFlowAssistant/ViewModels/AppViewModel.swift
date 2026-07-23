@@ -43,6 +43,11 @@ enum SessionMode: String,CaseIterable, Identifiable {
     var id : String { rawValue }
 }
 
+enum DailyChallengeType {
+    case studyMinutes
+    case completeSession
+}
+
 final class AppViewModel: ObservableObject {
     @Published var goals: [LearningGoal] = []
     @Published var title: String = ""
@@ -123,7 +128,7 @@ final class AppViewModel: ObservableObject {
         sanitizeSelectedGoal()
     }
 
-    func updateGoal(id: UUID, title: String, subject: String, notes: String) {
+    func updateGoal(id: UUID, title: String, subject: String, notes: String, dueDate: Date?) {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedSubject = subject.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -134,6 +139,7 @@ final class AppViewModel: ObservableObject {
         goals[index].title = trimmedTitle
         goals[index].subject = trimmedSubject
         goals[index].notes = trimmedNotes
+        goals[index].dueDate = dueDate
     }
 
     func toggleGoalCompletion(id: UUID) {
@@ -538,5 +544,101 @@ extension AppViewModel {
             }
             
         }
+    }
+    
+    var dailyStdyGoalMinutes: Int {
+        3
+    }
+    
+    var todayStudySeconds: Int {
+        let calendar = Calendar.current
+        
+        return sessions
+            .filter { calendar.isDateInToday($0.startedAt) }
+            .reduce(0) {$0 + $1.durationInSeconds }
+    }
+    
+    var todayStudyMinutes: Int {
+        todayStudySeconds / 60
+    }
+    
+    var dailyChallengeType: DailyChallengeType {
+        let weekday = Calendar.current.component(.weekday,from: Date())
+        
+        if weekday == 1 || weekday == 7 || weekday == 4 {
+            return .completeSession
+        } else {
+            return .studyMinutes
+        }
+    }
+    var dailyGoalProgress: Double {
+        switch dailyChallengeType {
+        case .studyMinutes:
+            guard dailyStdyGoalMinutes > 0 else { return 0 }
+            
+            let progress = Double (todayStudyMinutes) / Double (dailyStdyGoalMinutes)
+            
+            return min(progress, 1.0)
+            
+        case .completeSession:
+            guard dailySessionGoalCount > 0 else { return 0 }
+            let progress = Double (todaySessionCount) / Double (dailySessionGoalCount)
+            
+            return min(progress, 1.0)
+        }
+    }
+    
+    var hasCompletedDailyGoal: Bool {
+        
+        switch dailyChallengeType {
+        case .studyMinutes:
+            todayStudyMinutes >= dailyStdyGoalMinutes
+
+        case .completeSession:
+            todaySessionCount >= dailySessionGoalCount
+        }
+    }
+    var dailyChallengeText: String {
+        switch dailyChallengeType {
+        case .studyMinutes:
+            return hasCompletedDailyGoal
+            ? "Daily challenge completed. Great job!"
+            : "Study \(dailyStdyGoalMinutes) minutes today."
+
+        case .completeSession:
+            return hasCompletedDailyGoal
+            ? "Daily challenge completed. Great job!"
+            : "Complete \(dailySessionGoalCount) sessions today."
+        }
+    }
+    
+    var dailyChallengeProgressText: String {
+        switch dailyChallengeType {
+        case .studyMinutes:
+            return "Today \(todayStudyMinutes)/\(dailyStdyGoalMinutes)min."
+        case .completeSession:
+            return "Today \(todaySessionCount)/\(dailySessionGoalCount)."
+        }
+    }
+    
+    var remainingDailyGoalText: String {
+        switch dailyChallengeType {
+        case .studyMinutes:
+            let remaining = max(dailyStdyGoalMinutes - todayStudyMinutes, 0)
+            return "\(remaining) min left"
+        case .completeSession:
+            let remaining = max(dailySessionGoalCount - todaySessionCount, 0)
+            return "\(remaining) sessions left"
+        }
+    }
+    
+    var todaySessionCount: Int {
+        let calendar = Calendar.current
+        
+        return sessions.filter { calendar.isDateInToday($0.startedAt)}.count
+    }
+    
+    var dailySessionGoalCount: Int {
+        3
     }
 }
