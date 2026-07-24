@@ -14,6 +14,7 @@ struct StudySession: Identifiable, Codable {
     let startedAt: Date
     let endedAt: Date?
     let durationInSeconds: Int
+    var notes: String?
 
     init(
         id: UUID,
@@ -21,7 +22,8 @@ struct StudySession: Identifiable, Codable {
         goalTitle: String,
         startedAt: Date,
         endedAt: Date,
-        durationInSeconds: Int
+        durationInSeconds: Int,
+        notes: String? = nil
     ) {
         self.id = id
         self.goalId = goalId
@@ -29,6 +31,7 @@ struct StudySession: Identifiable, Codable {
         self.startedAt = startedAt
         self.endedAt = endedAt
         self.durationInSeconds = durationInSeconds
+        self.notes = notes
     }
 
     var durationText: String {

@@ -37,6 +37,7 @@ struct HomeView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }.cardStyle()
+            .frame(maxWidth: .infinity)
     }
     
     private var summarySection: some View{
@@ -85,13 +86,17 @@ struct HomeView: View {
                 .font(.headline)
             
             if viewModel.goals.isEmpty {
-                ContentUnavailableView("no goals yet", systemImage: "target",
-                                       description: Text("Start by adding your first goal"))
+                ContentUnavailableView(
+                    "no goals yet",
+                    systemImage: "target",
+                    description: Text("Start by adding your first goal")
+                )
+                
             } else {
                 ForEach(viewModel.recentGoals){ goal in
                     NavigationLink(destination: GoalDetailView(goal: goal)){
                         HStack{
-                            VStack(alignment: .leading, spacing: 6){
+                            VStack(alignment: .leading, spacing: 8){
                                 Text(goal.title)
                                     .font(.headline)
                                     .foregroundStyle(.blue.opacity(0.8))
@@ -328,6 +333,7 @@ struct HomeView: View {
                 }
             }
             .cardStyle()
+            .frame(width: .infinity)
         }
     }
 }

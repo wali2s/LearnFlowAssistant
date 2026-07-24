@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct SessionDetailView: View {
+    @EnvironmentObject var viewModel: AppViewModel
+    @State private var editedNote: String
+    @State private var showSavedFeedback = false
     let session: StudySession
-    
+    init(session: StudySession) {
+        self.session = session
+        _editedNote = State(initialValue: session.notes ?? "")
+    }
     var body: some View {
         List {
             Section("Session Info") {
@@ -39,6 +45,35 @@ struct SessionDetailView: View {
                
             }
             
+            Section("Notes") {
+                TextEditor(text: $editedNote)
+                    .frame(height: 140)
+                
+                Button("Sava Notes") {
+                    viewModel.updateSession(id: session.id, notes: editedNote)
+                    withAnimation {
+                        showSavedFeedback = true
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5){
+                        withAnimation {
+                            showSavedFeedback = false
+                        }
+                    }
+                }
+                
+                if showSavedFeedback {
+                    Label(
+                        "Notes saved",
+                        systemImage: "checkmark.circle",
+                    )
+                    .font(.callout)
+                    .foregroundStyle(.green)
+                    .transition(.opacity.combined(with: .scale))
+                }
+            }
+            
+            
         }
         .navigationTitle("Session Details")
         .navigationBarTitleDisplayMode(.inline)
@@ -55,6 +90,7 @@ struct SessionDetailView: View {
                 startedAt: .now.addingTimeInterval(-2400),
                 endedAt: .now,
                 durationInSeconds: 2400
+               
             ))
     }
 }

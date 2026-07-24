@@ -180,7 +180,8 @@ final class AppViewModel: ObservableObject {
             goalTitle: goal.title,
             startedAt: start,
             endedAt: end,
-            durationInSeconds: duration
+            durationInSeconds: duration,
+            notes: nil
         )
 
         sessions.insert(session, at: 0)
@@ -194,6 +195,11 @@ final class AppViewModel: ObservableObject {
     
     func deleteSession(_ session: StudySession) {
         sessions.removeAll {$0.id == session.id}
+    }
+    
+    func updateSession(id: UUID, notes: String) {
+        guard let index = sessions.firstIndex(where: {$0.id == id}) else {return}
+        sessions[index].notes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

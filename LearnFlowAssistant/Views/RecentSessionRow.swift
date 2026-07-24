@@ -12,14 +12,14 @@ struct RecentSessionRow: View {
     var body: some View {
         
         HStack(alignment: .top, spacing: 12){
-            Image(systemName: "clock.fill")
+            Image(systemName: "clock")
                 .font(.title3)
                 .foregroundStyle(.blue)
                 .frame(width:36, height: 36)
                 .background(.blue.opacity(0.12))
                 .clipShape(Circle())
             
-            VStack(alignment: .leading, spacing: 8){
+            VStack(alignment: .leading, spacing: 2){
                 HStack(alignment: .firstTextBaseline){
                     Text(session.goalTitle)
                         .font(.headline)
@@ -39,6 +39,13 @@ struct RecentSessionRow: View {
                 Text(session.formattedStartDate)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                
+                if let notes = session.notes, !notes.isEmpty {
+                    Text(notes)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
