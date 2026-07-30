@@ -9,59 +9,61 @@ import SwiftUI
 
 struct AchievementsView: View {
     @EnvironmentObject var viewModel: AppViewModel
-    
+
     var body: some View {
-            NavigationStack {
-                List {
-                    unlockedSection
-                    lockedSection
-                }
+        NavigationStack {
+            List {
+                unlockedSection
+                lockedSection
+            }
+            .navigationTitle("Achievements")
         }
     }
 }
 
 private extension AchievementsView {
     var unlockedSection: some View {
-        Section ("Unlocked") {
+        Section("Unlocked") {
             if viewModel.unlockedAchievements.isEmpty {
-                ContentUnavailableView (
+                ContentUnavailableView(
                     "No Achievements Unlocked",
                     systemImage: "rosette",
                     description: Text("Complete sessions and goals to unlock milestones.")
                 )
             } else {
                 ForEach(viewModel.unlockedAchievements) { achievement in
-                    AchievmentRow(for: achievement, unlocked: true)
+                    achievementRow(for: achievement, unlocked: true)
                 }
             }
         }
     }
-    
+
     var lockedSection: some View {
-        Section ("Locked") {
+        Section("Locked") {
             if viewModel.lockedAchievements.isEmpty {
-                ContentUnavailableView (
-                    "Everythig unlocked",
+                ContentUnavailableView(
+                    "Everything unlocked",
                     systemImage: "checkmark.seal.fill",
                     description: Text("Great job — you unlocked all current achievements.")
                 )
             } else {
-                ForEach(viewModel.lockedAchievements) { achievment in
-                        AchievmentRow(for: achievment, unlocked: false)
+                ForEach(viewModel.lockedAchievements) { achievement in
+                    achievementRow(for: achievement, unlocked: false)
                 }
             }
         }
     }
+
     @ViewBuilder
-    func AchievmentRow(for achievement: Achievement, unlocked: Bool) -> some View {
-        HStack( alignment: .top, spacing: 12) {
+    func achievementRow(for achievement: Achievement, unlocked: Bool) -> some View {
+        HStack(alignment: .top, spacing: 12) {
             Image(systemName: achievement.icon)
                 .font(.title3)
                 .foregroundStyle(unlocked ? .yellow : .gray)
                 .frame(width: 36, height: 36)
-                .background((unlocked ? Color.yellow : Color.gray).opacity(0.15)).clipShape(Circle())
-            
-            
+                .background((unlocked ? Color.yellow : Color.gray).opacity(0.15))
+                .clipShape(Circle())
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(achievement.title)
                     .font(.headline)
@@ -70,11 +72,11 @@ private extension AchievementsView {
                 Text(achievement.description)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                
+
                 Text(achievement.progressText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 ProgressView(value: achievement.progress)
                     .tint(unlocked ? .green.opacity(0.6) : .blue.opacity(0.6))
             }
@@ -85,7 +87,6 @@ private extension AchievementsView {
                 .foregroundStyle(unlocked ? .green : .secondary)
         }
         .padding(.vertical, 3)
-        
     }
 }
 

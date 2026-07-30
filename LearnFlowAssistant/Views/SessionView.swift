@@ -13,16 +13,18 @@ struct SessionView: View {
     @State private var showDeleteConfirmation = false
     @State private var sessionToDelete: StudySession?
     @State private var showPomodoroFinishedAlert = false
-    
+
     private var selectedGoalTitle: String {
         guard let selectedGoalId = viewModel.selectedGoalId,
-              let goal = viewModel.goals.first(where: {$0.id == selectedGoalId})
-        else { return "No goal selected" }
+              let goal = viewModel.goals.first(where: { $0.id == selectedGoalId }) else {
+            return "No goal selected"
+        }
         return goal.title
     }
+
     var body: some View {
-        NavigationStack{
-            Form{
+        NavigationStack {
+            Form {
                 sessionModeSection
                 goalPickerSection
                 currentSessionSection
@@ -34,52 +36,46 @@ struct SessionView: View {
                 "Stop Session",
                 isPresented: $showStopConfirmation,
                 titleVisibility: .visible
-            ){
-                Button("Stop Session", role: .destructive){
+            ) {
+                Button("Stop Session", role: .destructive) {
                     viewModel.stopSession()
                 }
-                
-                Button("Cancel", role: .cancel){
-                    
-                }
-            }message: {
+                Button("Cancel", role: .cancel) { }
+            } message: {
                 Text("Are you sure you want to stop the session?")
             }
             .confirmationDialog(
                 "Delete Session",
                 isPresented: $showDeleteConfirmation,
-                titleVisibility: .visible
-            ){
-                Button("Delete Session", role: .destructive){
-                    
-                    if let session = sessionToDelete {
-                        viewModel.deleteSession(session)
-                        sessionToDelete = nil
-                    }
-                }
-                Button ("Cancel", role: .cancel){
+                titleVisibility: .visible,
+                presenting: sessionToDelete
+            ) { session in
+                Button("Delete Session", role: .destructive) {
+                    viewModel.deleteSession(session)
                     sessionToDelete = nil
                 }
-            } message: {
+                Button("Cancel", role: .cancel) {
+                    sessionToDelete = nil
+                }
+            } message: { _ in
                 Text("Are you sure you want to delete this session?")
             }
-        }
-        .alert("Pmodoro Finshed", isPresented: $showPomodoroFinishedAlert){
-            Button("OK", role: .cancel){}
-        }message: {
-            Text("Your focus session has ended.")
-        }
-        .onChange(of: viewModel.didFinishPomodoro) { didNotFinish, didFinish in
-            if didFinish {
-                showPomodoroFinishedAlert = true
-                viewModel.didFinishPomodoro = false
+            .alert("Pomodoro Finished", isPresented: $showPomodoroFinishedAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Your focus session has ended.")
+            }
+            .onChange(of: viewModel.didFinishPomodoro) { _, didFinish in
+                if didFinish {
+                    showPomodoroFinishedAlert = true
+                    viewModel.didFinishPomodoro = false
+                }
             }
         }
     }
 }
 
 extension SessionView {
-    
     private var sessionModeSection: some View {
         Section("Session Mode") {
             Picker("Mode", selection: $viewModel.selectSessionMode) {
@@ -89,79 +85,79 @@ extension SessionView {
             }
             .pickerStyle(.segmented)
             .disabled(viewModel.activeSessionStart != nil)
-            
+
             if viewModel.selectSessionMode == .pomodoro {
                 Picker("Focus Length", selection: $viewModel.pomodoroFocusMinutes) {
-                    ForEach (viewModel.pomodoroMinutesOptions, id: \.self) {
-                        minutes in
+                    ForEach(viewModel.pomodoroMinutesOptions, id: \.self) { minutes in
                         Text("\(minutes) min").tag(minutes)
-                    }
-                }
-            }
-        }
-        
-    }
-    
-    private var goalPickerSection : some View {
-        Section("Choose Goal"){
-            if !viewModel.hasSelectableGoal {
-                ContentUnavailableView(
-                    "No goal available",
-                    systemImage: "target",
-                    description: Text("create a goal to start a session")
-                )
-            } else {
-                Picker("Learning Goal", selection:$viewModel.selectedGoalId){
-                    Text("Select a goal")
-                        .tag(UUID?.none)
-                    ForEach(viewModel.activeGoals){ goal in
-                        Text(goal.title).tag(Optional(goal.id))
                     }
                 }
                 .disabled(viewModel.activeSessionStart != nil)
             }
-            
-            LabeledContent(
-                "Selected Goal",
-                value: selectedGoalTitle
-            )
-            .foregroundStyle(viewModel.selectedGoalId == nil ? .secondary : .primary)
-            
-            if viewModel.activeSessionStart != nil{
-                Text("The goal is locked while a sessin is running")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+        }
+    }
+
+    private var goalPickerSection: some View {
+        Section("Choose Goal") {
+            if !viewModel.hasSelectableGoal {
+                ContentUnavailableView(
+                    "No goal available",
+                    systemImage: "target",
+                    description: Text("Create a goal to start a session.")
+                )
+            } else {
+                Picker("Learning Goal", selection: $viewModel.selectedGoalId) {
+                    Text("Select a goal").tag(UUID?.none)
+                    ForEach(viewModel.activeGoals) { goal in
+                        Text(goal.title).tag(Optional(goal.id))
+                    }
+                }
+                .disabled(viewModel.activeSessionStart != nil)
+
+                LabeledContent("Selected Goal", value: selectedGoalTitle)
+                    .foregroundStyle(viewModel.selectedGoalId == nil ? .secondary : .primary)
+
+                if viewModel.activeSessionStart != nil {
+                    Text("The goal is locked while a session is running.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
     }
-    
+
     private var currentSessionSection: some View {
-        Section("Current Session"){
+        Section("Current Session") {
             if let startDate = viewModel.activeSessionStart {
-                SessionTimerCard(startDate: startDate, goalTitle: viewModel.currentGoalTitle, formattedDuration: viewModel.formattedDuration)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                LabeledContent(
-                    "Mode",
-                    value: viewModel.selectSessionMode.rawValue
+                SessionTimerCard(
+                    startDate: startDate,
+                    goalTitle: viewModel.currentGoalTitle,
+                    formattedDuration: viewModel.formattedDuration
                 )
-                .font(.subheadline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+
+                LabeledContent("Mode", value: viewModel.selectSessionMode.rawValue)
+                    .font(.subheadline)
+
                 if viewModel.selectSessionMode == .pomodoro {
                     LabeledContent(
                         "Remaining Focus Time",
-                        value: viewModel.formattedDuration(viewModel.pomodoroRemainingSeconds))
+                        value: viewModel.formattedDuration(viewModel.pomodoroRemainingSeconds)
+                    )
                     .font(.headline)
                 }
-                
-                Button("Stop Session", role: .destructive){
+
+                Button("Stop Session", role: .destructive) {
                     showStopConfirmation = true
                 }
-            }else{
-                VStack(alignment: .leading, spacing: 8){
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
                     Text("No active session")
                         .font(.headline)
+
                     if viewModel.selectSessionMode == .pomodoro {
-                        Text("Pomodoro mode is active. Your Focus session will run for \(viewModel.pomodoroFocusMinutes) minutes.")
+                        Text("Pomodoro mode is active. Your focus session will run for \(viewModel.pomodoroFocusMinutes) minutes.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     } else {
@@ -169,27 +165,25 @@ extension SessionView {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
+
+                    Button(viewModel.selectSessionMode == .pomodoro ? "Start Pomodoro" : "Start Session") {
+                        viewModel.startSession()
+                    }
+                    .disabled(viewModel.selectedGoalId == nil || !viewModel.hasSelectableGoal)
                 }
-               
-                Button(viewModel.selectSessionMode == .pomodoro ? "Start Pomodoro" : "Start Session"){
-                    viewModel.startSession()
-                }
-                .disabled(viewModel.selectedGoalId == nil || !viewModel.hasSelectableGoal)
             }
         }
     }
-    
+
     private var recentSessionsSection: some View {
-        Section("Recent Sessions"){
+        Section("Recent Sessions") {
             if viewModel.sessions.isEmpty {
                 ContentUnavailableView(
                     "No sessions yet",
                     systemImage: "clock",
                     description: Text("Your finished learning session will appear here.")
                 )
-                .listRowSeparator(.hidden)
-                
-            }else{
+            } else {
                 ForEach(viewModel.groupedRecentSessions) { section in
                     Section(section.title) {
                         ForEach(section.sessions) { session in
@@ -213,16 +207,13 @@ extension SessionView {
                             .listRowBackground(Color.clear)
                         }
                     }
-                    .listSectionSeparator(.hidden)
                 }
             }
         }
     }
 }
 
-
 #Preview {
     SessionView()
         .environmentObject(AppViewModel())
 }
-
