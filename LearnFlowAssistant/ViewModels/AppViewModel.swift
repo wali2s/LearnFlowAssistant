@@ -75,6 +75,7 @@ final class AppViewModel: ObservableObject {
     @Published var selectedGoalFilter: GoalFilter = .all
     @Published var selectedGoalSort: GoalSortOption = .titleAscending
     @Published var goalSearchText: String = ""
+    @Published var dueDate : Date?
 
     private var cancellables = Set<AnyCancellable>()
     private let storage = GoalStorageService()
@@ -113,12 +114,13 @@ final class AppViewModel: ObservableObject {
 
         guard !trimmedTitle.isEmpty, !trimmedSubject.isEmpty else { return }
 
-        let goal = LearningGoal(title: trimmedTitle, subject: trimmedSubject, notes: trimmedNotes)
+        let goal = LearningGoal(title: trimmedTitle, subject: trimmedSubject, notes: trimmedNotes, dueDate: dueDate)
         goals.append(goal)
 
         title = ""
         subject = ""
         notes = ""
+        dueDate = nil
     }
 
     func deleteGoal(id: UUID) {

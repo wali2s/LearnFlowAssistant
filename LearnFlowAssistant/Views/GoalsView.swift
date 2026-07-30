@@ -29,6 +29,12 @@ struct GoalsView: View {
                         .focused($focusedField, equals: .subject)
                     
                     TextField("Goal Notes", text: $viewModel.notes, axis: .vertical).lineLimit(3...6)
+                    DatePicker(
+                        "Due Date",
+                        selection: Binding(get: {viewModel.dueDate ?? Date()},
+                                           set: {viewModel.dueDate = $0}),
+                        displayedComponents: .date
+                    )
                     Button("Add Goal") {
                         viewModel.addGoal()
                         focusedField = nil

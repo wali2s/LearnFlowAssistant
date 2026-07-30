@@ -15,7 +15,10 @@ struct GoalDetailView: View {
     @State var editedSubject: String
     @State var editedNotes: String
     @State private var hasDeadLine: Bool
-    @State private var editedDueDate: Date
+    @State private var editedDueDate: Date?
+    @State private var showSavedFeedback: Bool = false
+    @State private var hasUnsavedChanges: Bool = false
+    
     
     init(goal: LearningGoal){
         self.goalId = goal.id
@@ -24,7 +27,10 @@ struct GoalDetailView: View {
         _editedNotes = State(initialValue: goal.notes)
         _hasDeadLine = State(initialValue: goal.dueDate != nil)
         _editedDueDate = State(initialValue: goal.dueDate ?? Date())
+        
+       
     }
+    
     
     private var currentGoal: LearningGoal?{
         viewModel.goals.first(where: {$0.id == goalId})
@@ -42,29 +48,78 @@ struct GoalDetailView: View {
         Form{
             Section("Edit Goal"){
                 TextField("Goal title", text:$editedTitle)
+                    .onChange(of: editedTitle)
+                {_, _ in   withAnimation(.spring(response: 0.35, dampingFraction: 0.8))
+                    {
+                        hasUnsavedChanges = true
+                    }
+                }
                 TextField("Goal subject", text: $editedSubject)
+                    .onChange(of: editedSubject)
+                {_, _ in   withAnimation(.spring(response: 0.35, dampingFraction: 0.8))
+                    {
+                        hasUnsavedChanges = true
+                    }
+                }
                 VStack(alignment: .leading, spacing: 8){
                     Text("Notes")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     TextEditor(text: $editedNotes)
                         .frame(minHeight: 120)
+                        .onChange(of: editedNotes)
+                    {_, _ in   withAnimation(.spring(response: 0.35, dampingFraction: 0.8))
+                        {
+                            hasUnsavedChanges = true
+                        }
+                    }
                 }
                 
                 Toggle("Set deadline", isOn: $hasDeadLine)
                 if hasDeadLine {
                     DatePicker(
-                        "Deadline",
-                        selection: $editedDueDate,
+                        "Due Date",
+                        selection: Binding(
+                                get: { editedDueDate ?? Date() },
+                                set: { editedDueDate = $0 }),
                         displayedComponents: .date
                     )
+                    .onChange(of: editedDueDate){_, _ in   withAnimation(.spring(response: 0.35, dampingFraction: 0.8))
+                        {
+                            hasUnsavedChanges = true
+                        }
+                    }
                 }
+               
                 Button("save changes"){
                     viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject, notes: editedNotes, dueDate: hasDeadLine ? editedDueDate : nil)
+                    
+                   hasUnsavedChanges = false
+                    
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                          showSavedFeedback = true
+
+                      }
+                      DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                          withAnimation(.easeOut(duration: 0.25)) {
+                              showSavedFeedback = false
+                          }
+                    }
                 }
                 .disabled(
                     !canSave
                 )
+                if showSavedFeedback {
+                    Label("Saved", systemImage: "checkmark.circle.fill")
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(.green)
+                        .transition(.scale.combined(with: .opacity))
+                } else if hasUnsavedChanges {
+                    Label("Unsaved changes", systemImage: "checkmark.circle.fill")
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(.orange)
+                        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hasUnsavedChanges)
+                }
             }
             
             Section("Progress") {
