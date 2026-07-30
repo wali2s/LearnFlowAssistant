@@ -597,4 +597,27 @@ extension AppViewModel {
             )
         ]
     }
+    
+    var upcommingGoals: [LearningGoal] {
+        goals.compactMap {
+            goal -> LearningGoal? in
+            guard let dueDate = goal.dueDate else { return nil }
+            return goal
+        }
+        .sorted {
+            ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture)
+        }
+    }
+    
+    var dueSoonGoals: [LearningGoal] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let soonDate = calendar.date(byAdding: .day, value: 2, to: today) ?? Date()
+        
+        return upcommingGoals.filter {
+            goal in
+            guard let dueDate = goal.dueDate else { return false }
+            return dueDate >= today && dueDate <= soonDate
+        }
+    }
 }

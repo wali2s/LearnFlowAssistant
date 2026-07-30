@@ -17,6 +17,7 @@ struct HomeView: View {
                     headerSection
                     dailyChallengeSection
                     summarySection
+                    upcomingDeadlinesSection
                     achievementsPreviewSection
                     streakSection
                     lastSessionSection
@@ -57,6 +58,41 @@ private extension HomeView {
                 SummaryCard(title: "Minutes", value: viewModel.totalStudyTimeText, color: .orange)
                 SummaryCard(title: "Active", value: "\(viewModel.activeGoalCount)", color: .purple)
             }
+        }
+    }
+    
+    var upcomingDeadlinesSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Upcoming deadlines")
+                .font(.headline)
+            
+            if viewModel.dueSoonGoals.isEmpty {
+                ContentUnavailableView(
+                    "No deadlines soon", systemImage:"calendar",
+                    description: Text("Your upcoming goals will appear here.")
+                )
+            } else {
+                ForEach(viewModel.dueSoonGoals) { goal in
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .foregroundStyle(.orange)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(goal.title)
+                                .font(.headline)
+                          
+                            if let dueDate = goal.dueDate {
+                                Text("Due \(dueDate.formatted(date: .abbreviated, time: .omitted))")                                   .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        Spacer()
+                    }
+                    .cardStyle()
+                }
+            }
+            
+            
         }
     }
 
