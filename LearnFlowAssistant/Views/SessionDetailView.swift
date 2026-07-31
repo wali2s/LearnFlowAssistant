@@ -11,6 +11,8 @@ struct SessionDetailView: View {
     @EnvironmentObject var viewModel: AppViewModel
     @State private var editedNote: String
     @State private var showSavedFeedback = false
+    @FocusState private var focusedField: Field?
+    
     let session: StudySession
     init(session: StudySession) {
         self.session = session
@@ -47,10 +49,13 @@ struct SessionDetailView: View {
             
             Section("Notes") {
                 TextEditor(text: $editedNote)
+                    .focused($focusedField, equals : .notes)
                     .frame(height: 140)
-                
+                    .submitLabel(.return)
+                    
                 Button("Sava Notes") {
                     viewModel.updateSession(id: session.id, notes: editedNote)
+                    focusedField = nil
                     withAnimation {
                         showSavedFeedback = true
                     }

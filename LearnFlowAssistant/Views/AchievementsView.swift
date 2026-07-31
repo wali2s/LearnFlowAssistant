@@ -22,6 +22,7 @@ struct AchievementsView: View {
 }
 
 private extension AchievementsView {
+    
     var unlockedSection: some View {
         Section("Unlocked") {
             if viewModel.unlockedAchievements.isEmpty {
@@ -33,6 +34,7 @@ private extension AchievementsView {
             } else {
                 ForEach(viewModel.unlockedAchievements) { achievement in
                     achievementRow(for: achievement, unlocked: true)
+                        
                 }
             }
         }

@@ -580,6 +580,22 @@ extension AppViewModel {
                 progressText: "\(totalGoalCount)/5 goals"
             ),
             Achievement(
+                title: "Goal Master",
+                description: "Create 10 learning goals.",
+                icon: "checklist",
+                currentValue: totalGoalCount,
+                targetValue: 10,
+                progressText: "\(totalGoalCount)/10 goals"
+            ),
+            Achievement(
+                title: "Goal Legend",
+                description: "Create 25 learning goals.",
+                icon: "star.circle",
+                currentValue: totalGoalCount,
+                targetValue: 25,
+                progressText: "\(totalGoalCount)/25 goals"
+            ),
+            Achievement(
                 title: "First Session",
                 description: "Complete your first study session.",
                 icon: "clock",
@@ -588,12 +604,44 @@ extension AppViewModel {
                 progressText: "\(totalSessionCount)/1 sessions"
             ),
             Achievement(
+                title: "Study Starter",
+                description: "Complete 5 study sessions.",
+                icon: "calendar",
+                currentValue: totalSessionCount,
+                targetValue: 5,
+                progressText: "\(totalSessionCount)/5 sessions"
+            ),
+            Achievement(
+                title: "Dedicated Learner",
+                description: "Complete 10 study sessions.",
+                icon: "book.closed",
+                currentValue: totalSessionCount,
+                targetValue: 10,
+                progressText: "\(totalSessionCount)/10 sessions"
+            ),
+            Achievement(
                 title: "Study Streak",
                 description: "Study on 3 different days.",
                 icon: "flame",
                 currentValue: studyDays.count,
                 targetValue: 3,
                 progressText: "\(studyDays.count)/3 days"
+            ),
+            Achievement(
+                title: "Consistent Learner",
+                description: "Study on 7 different days.",
+                icon: "calendar.badge.checkmark",
+                currentValue: studyDays.count,
+                targetValue: 7,
+                progressText: "\(studyDays.count)/7 days"
+            ),
+            Achievement(
+                title: "Learning Habit",
+                description: "Study on 14 different days.",
+                icon: "bolt.fill",
+                currentValue: studyDays.count,
+                targetValue: 14,
+                progressText: "\(studyDays.count)/14 days"
             )
         ]
     }
@@ -601,7 +649,7 @@ extension AppViewModel {
     var upcommingGoals: [LearningGoal] {
         goals.compactMap {
             goal -> LearningGoal? in
-            guard let dueDate = goal.dueDate else { return nil }
+            guard goal.dueDate != nil else { return nil }
             return goal
         }
         .sorted {

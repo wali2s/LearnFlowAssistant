@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+enum Field {
+    case title
+    case subject
+    case notes
+}
+
 struct GoalDetailView: View {
     @EnvironmentObject var viewModel: AppViewModel
     
@@ -18,6 +24,7 @@ struct GoalDetailView: View {
     @State private var editedDueDate: Date?
     @State private var showSavedFeedback: Bool = false
     @State private var hasUnsavedChanges: Bool = false
+    @FocusState private var focusedField: Field?
     
     
     init(goal: LearningGoal){
@@ -47,7 +54,12 @@ struct GoalDetailView: View {
     var body: some View {
         Form{
             Section("Edit Goal"){
-                TextField("Goal title", text:$editedTitle)
+                TextField("Goal title", text:$editedTitle,)                   .focused($focusedField, equals: .title)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        focusedField = nil
+                    }
+
                     .onChange(of: editedTitle)
                 {_, _ in   withAnimation(.spring(response: 0.35, dampingFraction: 0.8))
                     {
@@ -55,6 +67,11 @@ struct GoalDetailView: View {
                     }
                 }
                 TextField("Goal subject", text: $editedSubject)
+                    .focused($focusedField, equals: .title)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        focusedField = nil
+                    }
                     .onChange(of: editedSubject)
                 {_, _ in   withAnimation(.spring(response: 0.35, dampingFraction: 0.8))
                     {
@@ -66,6 +83,11 @@ struct GoalDetailView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     TextEditor(text: $editedNotes)
+                        .focused($focusedField, equals: .title)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            focusedField = nil
+                        }
                         .frame(minHeight: 120)
                         .onChange(of: editedNotes)
                     {_, _ in   withAnimation(.spring(response: 0.35, dampingFraction: 0.8))
@@ -92,9 +114,14 @@ struct GoalDetailView: View {
                 }
                
                 Button("save changes"){
-                    viewModel.updateGoal(id: goalId, title: editedTitle, subject: editedSubject, notes: editedNotes, dueDate: hasDeadLine ? editedDueDate : nil)
-                    
-                   hasUnsavedChanges = false
+                    viewModel.updateGoal(
+                        id: goalId, title: editedTitle,
+                        subject: editedSubject,
+                        notes: editedNotes,
+                        dueDate: hasDeadLine ? editedDueDate : nil
+                    )
+                    focusedField = nil
+                    hasUnsavedChanges = false
                     
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                           showSavedFeedback = true

@@ -12,11 +12,7 @@ struct GoalsView: View {
     @FocusState private var focusedField: Field?
     @State private var goalToDelete: LearningGoal?
     @State private var showDeleteConfirmation: Bool = false
-   
-    enum Field {
-        case title
-        case subject
-    }
+  
     
     var body: some View {
         NavigationStack {
@@ -25,10 +21,23 @@ struct GoalsView: View {
                 Section("New Goal") {
                     TextField("Goal title", text: $viewModel.title)
                         .focused($focusedField, equals: .title)
+                        .submitLabel(.continue)
+                        .onSubmit {
+                            focusedField = nil
+                        }
                     TextField("Goal Subject", text: $viewModel.subject)
                         .focused($focusedField, equals: .subject)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            focusedField = nil
+                        }
                     
-                    TextField("Goal Notes", text: $viewModel.notes, axis: .vertical).lineLimit(3...6)
+                    TextField("Goal Notes", text: $viewModel.notes, axis: .vertical)
+                        .focused($focusedField, equals: .notes)
+                        .lineLimit(3...6)
+                        .onSubmit {
+                            focusedField = nil
+                        }
                     DatePicker(
                         "Due Date",
                         selection: Binding(get: {viewModel.dueDate ?? Date()},
@@ -41,35 +50,35 @@ struct GoalsView: View {
                     }
                     .disabled(!viewModel.canSave)
                 }
-                
                 Section("My Goals") {
                     
-                    Picker("Filter", selection: $viewModel.selectedGoalFilter){
-                        ForEach(GoalFilter.allCases){ filter in
-                            Text(filter.rawValue).tag(filter)
-                        }
-                    }
-                    if viewModel.filteredGoals.isEmpty {
-                        if viewModel.goals.isEmpty {
-                            ContentUnavailableView("No goals found",
-                                                   systemImage: "line.3.horizontal.decrease.circle",
-                                                   description: Text("try a different filter or add a new goal")
-                            )
-                        }else {
-                            ContentUnavailableView(
-                                "No matching Goals",
-                                systemImage: "magnifyingglass",
-                                description: Text("Try a different search or filter")
-                            )
-                        }
                         
-                    } else {
-                        ForEach(viewModel.filteredGoals) { goal in
-                            goalRow(for: goal)
+                        Picker("Filter", selection: $viewModel.selectedGoalFilter){
+                            ForEach(GoalFilter.allCases){ filter in
+                                Text(filter.rawValue).tag(filter)
                             }
                         }
+                        if viewModel.filteredGoals.isEmpty {
+                            if viewModel.goals.isEmpty {
+                                ContentUnavailableView("No goals found",
+                                                       systemImage: "line.3.horizontal.decrease.circle",
+                                                       description: Text("try a different filter or add a new goal")
+                                )
+                            }else {
+                                ContentUnavailableView(
+                                    "No matching Goals",
+                                    systemImage: "magnifyingglass",
+                                    description: Text("Try a different search or filter")
+                                )
+                            }
+                            
+                        } else {
+                            ForEach(viewModel.filteredGoals) { goal in
+                                goalRow(for: goal)                            }
+                        }
                     }
-                }
+             
+                            }
             }
             .navigationTitle("Goals")
             .searchable(

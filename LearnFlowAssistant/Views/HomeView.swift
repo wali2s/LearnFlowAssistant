@@ -59,6 +59,7 @@ private extension HomeView {
                 SummaryCard(title: "Active", value: "\(viewModel.activeGoalCount)", color: .purple)
             }
         }
+        .cardStyle()
     }
     
     var upcomingDeadlinesSection: some View {
@@ -88,12 +89,11 @@ private extension HomeView {
                         }
                         Spacer()
                     }
-                    .cardStyle()
                 }
             }
             
             
-        }
+        }.cardStyle()
     }
 
     var streakSection: some View {
@@ -166,12 +166,11 @@ private extension HomeView {
                             Image(systemName: "chevron.right")
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .cardStyle()
-                    }
+                        .rowStyle()                                            }
                     .buttonStyle(.plain)
                 }
             }
-        }
+        }.cardStyle()
     }
 
     var lastSessionSection: some View {
@@ -196,7 +195,6 @@ private extension HomeView {
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    .cardStyle()
                 }
                 .buttonStyle(.plain)
             } else {
@@ -206,7 +204,7 @@ private extension HomeView {
                     description: Text("Your latest finished session will appear here.")
                 )
             }
-        }
+        }.cardStyle()
     }
 
     var achievementsPreviewSection: some View {
@@ -263,10 +261,9 @@ private extension HomeView {
                                 .foregroundStyle(.green)
                         }
                     }
-                    .cardStyle()
                 }
             }
-        }
+        }.cardStyle()
     }
 
     var quickActionsSection: some View {
@@ -321,7 +318,8 @@ private extension HomeView {
                     .cornerRadius(15)
             }
             .buttonStyle(.plain)
-        }
+            
+        }.cardStyle()
     }
 
     var isSessionRunning: Bool {
